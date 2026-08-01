@@ -72,10 +72,26 @@ ios/Pods/
 .pub/
 **/doc/api/
 
-# React Native / Metro (if used later)
+# React Native / Expo / Metro
 .expo/
 .expo-shared/
+expo-env.d.ts
+web-build/
+.metro-health-check*
 *.jsbundle
+*.tsbuildinfo
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.key
+*.mobileprovision
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+# Generated native folders (Expo prebuild)
+/ios
+/android
 android/.gradle/
 android/local.properties
 ios/Flutter/flutter_export_environment.sh
