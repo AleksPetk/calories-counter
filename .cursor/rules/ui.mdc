@@ -1,0 +1,13 @@
+---
+description: UI rules — follow UI_GUIDELINES.md; no redesigns; optimize for speed and taps
+alwaysApply: true
+---
+
+# UI
+
+- Follow `UI_GUIDELINES.md`.
+- Never redesign screens without approval.
+- Optimize for speed and minimum taps.
+- Do not invent UI patterns for open questions in `UI_GUIDELINES.md`; ask or document the decision first.
+- Reuse shared components; keep screens visually consistent.
+- Prefer one-tap actions and avoid unnecessary navigation.

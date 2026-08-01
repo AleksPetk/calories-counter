@@ -1,0 +1,12 @@
+---
+description: Scope control — only touch files required for the requested task
+alwaysApply: true
+---
+
+# Scope
+
+- Never modify unrelated files.
+- Never refactor unrelated code.
+- Only touch files required for the requested task.
+- Do not “clean up” adjacent modules, formatting, or naming unless asked.
+- If a needed change spills outside the task, stop and ask before expanding scope.

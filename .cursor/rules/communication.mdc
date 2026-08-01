@@ -1,0 +1,20 @@
+---
+description: Communication — explain planned changes before editing; summarize after
+alwaysApply: true
+---
+
+# Communication
+
+## Before making changes, explain
+
+- What will change
+- Which files will change
+- Why they need to change
+
+## After changes, summarize
+
+- Files changed
+- What changed
+- What still needs testing
+
+Keep explanations concise. Do not start implementation until the before-change explanation is given (unless the user explicitly asks to just do it).

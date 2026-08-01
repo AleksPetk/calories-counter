@@ -1,0 +1,11 @@
+---
+description: Documentation — update PROJECT.md or UI_GUIDELINES.md when design agreements change
+alwaysApply: true
+---
+
+# Documentation
+
+- Update `PROJECT.md` or `UI_GUIDELINES.md` if an implementation changes the agreed design.
+- Do not leave design drift only in code or chat — reflect decisions in the planning docs.
+- Keep doc updates scoped to what actually changed; do not rewrite unrelated sections.
+- When resolving an open question from those docs, update the doc and remove or mark the question resolved.

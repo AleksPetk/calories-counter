@@ -1,0 +1,105 @@
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+Desktop.ini
+
+# Secrets & local env
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.keystore
+credentials.json
+**/secrets/
+google-services.json
+GoogleService-Info.plist
+
+# Logs & temp
+*.log
+*.tmp
+*.temp
+*.swp
+*~
+.cache/
+
+# Editors / IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+*.code-workspace
+
+# Dependencies
+node_modules/
+.pnpm-store/
+.yarn/
+.yarn/cache
+bower_components/
+Pods/
+.pub-cache/
+
+# Build / output
+build/
+dist/
+out/
+coverage/
+*.js.map
+*.app
+*.apk
+*.aab
+*.ipa
+*.dSYM/
+DerivedData/
+android/app/build/
+ios/build/
+ios/Pods/
+**/xcuserdata/
+*.xcuserstate
+
+# Flutter / Dart (if used later)
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+**/doc/api/
+
+# React Native / Metro (if used later)
+.expo/
+.expo-shared/
+*.jsbundle
+android/.gradle/
+android/local.properties
+ios/Flutter/flutter_export_environment.sh
+
+# Native / tooling caches
+.gradle/
+local.properties
+*.hprof
+.cxx/
+cmake-build-*/
+
+# Python (tooling / scripts)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Test / coverage extras
+.nyc_output/
+*.lcov
+
+# Misc local
+*.local
+.turbo/

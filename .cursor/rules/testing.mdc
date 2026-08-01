@@ -1,0 +1,12 @@
+---
+description: Testing rules — test only the feature in scope; stop on failure; no guessing
+alwaysApply: true
+---
+
+# Testing
+
+- Test only the feature being implemented.
+- Do not continue if tests fail.
+- Explain confirmed errors instead of guessing.
+- Do not expand test scope into unrelated suites “while here.”
+- Report what was run, what passed/failed, and the concrete failure evidence.

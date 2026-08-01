@@ -1,0 +1,13 @@
+---
+description: Safety — no destructive commands, deletes, DB resets, or library swaps without approval
+alwaysApply: true
+---
+
+# Safety
+
+- Never run destructive commands without approval.
+- Never delete files without approval.
+- Never reset databases without approval.
+- Never replace major libraries without approval.
+- Treat data loss risk (wipe, migrate-destroy, force push, recursive delete) as requiring explicit user OK.
+- When unsure whether an action is destructive, ask first.

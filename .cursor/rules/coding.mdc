@@ -1,0 +1,14 @@
+---
+description: Coding standards — simple code, reuse, follow PROJECT.md and UI_GUIDELINES.md
+alwaysApply: true
+---
+
+# Coding
+
+- Prefer simple and maintainable code.
+- Reuse existing components.
+- Avoid unnecessary abstraction.
+- Do not add dependencies unless necessary.
+- Follow `PROJECT.md` and `UI_GUIDELINES.md`.
+- Do not generate application code during pure planning/documentation tasks.
+- No bloated shared food DB patterns; keep personal-library and offline-first behavior intact.

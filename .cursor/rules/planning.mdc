@@ -1,0 +1,12 @@
+---
+description: Planning rules — discuss architecture, stage work, no large unplanned features
+alwaysApply: true
+---
+
+# Planning
+
+- Discuss architecture before implementing.
+- Never implement large features without a plan.
+- Implement one small stage at a time.
+- Prefer aligning with `PROJECT.md` stages over ad-hoc scope expansion.
+- If the request is large, propose a staged plan and wait for agreement before coding.
