@@ -236,7 +236,7 @@ Decisions still needed — do not assume answers in implementation:
 15. **Editing past days from History** — Same screen component as Today’s Log or a separate mode?
 16. **Day reset indicator** — How does Home show that “today” started at e.g. 04:00?
 17. **Tutorial** — First-run only content outline; modal vs dedicated screens?
-18. **Navigation shell** — Tab bar contents and order (Home / Library / History / Settings)?
+18. ~~**Navigation shell**~~ Resolved: bottom tabs in order Home | Library | History | Settings (Home is default).
 19. **Paywall placement** — Settings only vs soft gate after trial on log actions?
 20. **Empty states** — Exact copy and CTA for no pins, empty library, empty day log?
 21. **Accessibility** — Dynamic Type limits, VoiceOver labels for pins and bar, reduced motion behavior?

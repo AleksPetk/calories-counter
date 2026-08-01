@@ -119,60 +119,117 @@ Features that fight the philosophy (large search DBs, social, ads, subscription 
 
 ## Development Stages
 
-### Stage 0 — Planning (current)
+### Stage 1 — Foundation — Done
 
-- Vision, MVP, architecture outline, open questions.
-- Artifacts: `README.md`, `PROJECT.md`.
+- Git and repository setup
+- Planning documents
+- Cursor rules
+- Expo TypeScript project
+- Compatible Expo SDK
+- Verify on physical device
 
-### Stage 1 — Foundations
+### Stage 2 — Architecture — Done
 
-- Choose stack (see open questions).
-- Initialize app project, linting, basic navigation shell.
-- Define local data model and persistence layer.
-- Empty screens wired: Log, Library, History, Settings.
+- Folder structure under `src/`
+- React Navigation bottom tabs: Home | Library | History | Settings
+- Empty Home, Library, History, and Settings screens
+- Shared `components`, `constants`, and `theme`
+- No database, state management, or business logic
+- Shared `types` deferred until real domain types exist
 
-### Stage 2 — Library & logging core
+### Stage 3 — UI Skeleton — Current
 
-- CRUD for foods and meals.
-- Log meal (one tap) and log ingredient (portion).
-- Today’s total and entry list.
-- Edit/delete logged entries; undo last log if feasible.
+- Screen layouts and shared UI structure for Home, Library, History, and Settings
+- Remaining calorie bar, quick calorie entry, and expandable optional name/macros as UI only
+- Temporary/mock data only for display and navigation
+- No business logic
+- No persistence or database
 
-### Stage 3 — Speed polish
+### Decisions required before Stage 4 (Database)
 
-- Favorites / pinned meals on Log home.
-- Keyboard and focus flows optimized for portion entry.
-- Reduce navigation depth; confirm tap budgets for main flows.
-- Empty states that push users to create their first meal quickly.
+- Portion model
+- Macros in MVP
+- Day reset behavior
+- Identifier strategy
 
-### Stage 4 — Trial & purchase
+### Stage 4 — Local Database
 
-- Trial clock / entitlement.
-- One-time in-app purchase + restore.
-- Settings: license status, legal links placeholders.
+- SQLite setup
+- Data models
+- Repository/storage layer
+- Migration strategy
 
-### Stage 5 — Hardening for release
+### Stage 5 — Food Library
 
-- Persistence edge cases, data migration strategy.
-- Basic automated tests for model/calculations and critical flows.
-- Accessibility pass (Dynamic Type / large text, contrast).
-- Store listing assets, privacy policy, support URL.
-- Beta on device; measure real logging speed.
+- Foods and meals
+- Create, edit, delete
+- Search
+- Pin/unpin
+- Optional meal images
 
-### Stage 6 — Post-MVP (optional track)
+### Stage 6 — Logging Core
 
-- Backup/export, goals, widgets, sync — only after MVP feels fast in daily use.
+- One-tap meal logging
+- Portion popup for foods
+- Today’s log
+- Edit/delete entries
+- Undo recent entry
+
+### Stage 7 — History, Settings, and Tutorial
+
+- Browse previous days
+- Edit past entries
+- Daily totals
+- Daily goal
+- Editable reset time
+- Replay tutorial
+- App information
+
+### Stage 8 — Trial and One-Time Purchase
+
+- Trial state
+- Apple and Google purchase handling
+- Restore purchase
+- Purchase status
+
+### Stage 9 — Long Polish Phase
+
+- Testing
+- Accessibility
+- Performance
+- UX and speed polish across core flows
+
+### Stage 10 — Release
+
+- Store assets
+- Privacy and support pages
+- Release builds
+- Post-MVP: See Future Features.
 
 ---
 
 ## High-Level Architecture
 
-No folders or packages are created yet. This is a logical map only.
+Stack: React Native + Expo (TypeScript), React Navigation (not Expo Router).
+
+### Current app structure (Stage 2)
+
+```
+App.tsx                 # SafeAreaProvider + NavigationContainer
+src/
+  navigation/           # Bottom tab shell
+  screens/              # Home, Library, History, Settings (empty shells)
+  components/           # Shared UI (Screen wrapper)
+  constants/            # Static labels/values in use
+  theme/                # colors, spacing, typography
+```
+
+Logical layers for later stages:
 
 ```
 ┌─────────────────────────────────────────────┐
 │                 Presentation                │
-│  Log · Library · History · Settings (UI)    │
+│  Home · Library · History · Settings (UI)   │
 └─────────────────────┬───────────────────────┘
                       │
 ┌─────────────────────▼───────────────────────┐
@@ -184,7 +241,7 @@ No folders or packages are created yet. This is a logical map only.
 ┌─────────────────────▼───────────────────────┐
 │              Local Data Layer               │
 │  Foods · Meals · Log entries · App settings │
-│  (SQLite / equivalent — choice TBD)         │
+│  (SQLite — Stage 3)                         │
 └─────────────────────────────────────────────┘
 
 Optional (purchase only):
@@ -212,15 +269,11 @@ Optional (purchase only):
 - **Deterministic totals:** recalculate from log entries; avoid divergent cached totals without a clear rule.
 - **Platform billing isolated:** purchase code behind a small entitlement port so core app stays testable offline.
 
-### Likely tech shape (undecided)
+### Tech shape
 
-Candidates for later decision:
-
-- Cross-platform: Flutter or React Native / Expo
-- Native: SwiftUI (iOS) and/or Kotlin (Android)
-- Local DB: SQLite (Drift/Room/GRDB/sqflite) or equivalent
-
-Choice should favor fast UI, reliable local DB, and straightforward IAP — not trendiness.
+- **UI framework:** React Native + Expo (TypeScript) — decided
+- **Navigation:** React Navigation bottom tabs — decided
+- **Local DB:** SQLite flavor / library — Stage 3 decision
 
 ---
 
@@ -247,7 +300,7 @@ Choice should favor fast UI, reliable local DB, and straightforward IAP — not 
 
 ### Technical
 
-14. **Framework?** Flutter vs React Native vs native.
+14. ~~**Framework?**~~ Resolved: React Native + Expo (TypeScript).
 15. **Persistence?** SQLite flavor / ORM.
 16. **IAP approach?** RevenueCat vs StoreKit/Play Billing direct.
 17. **Trial implementation?** Store free trial of non-consumable vs app-managed first-launch timer (implications for reinstall abuse).
@@ -275,8 +328,8 @@ Choice should favor fast UI, reliable local DB, and straightforward IAP — not 
 
 ## Document control
 
-| Field   | Value        |
-|---------|--------------|
-| Status  | Planning     |
-| Created | 2026-08-01   |
-| Code    | Not started  |
+| Field   | Value                          |
+|---------|--------------------------------|
+| Status  | Stage 2 architecture complete |
+| Created | 2026-08-01                     |
+| Code    | Expo app + navigation shell    |
