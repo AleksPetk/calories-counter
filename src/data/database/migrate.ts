@@ -5,13 +5,185 @@ import {
   DEFAULT_RESET_TIME,
   SCHEMA_VERSION,
 } from './constants';
-import { SCHEMA_V1_SQL } from './schema';
+import { LIBRARY_ITEMS_SQL, SCHEMA_V1_SQL } from './schema';
 import { nowIso } from './utils';
 
 type Migration = {
   version: number;
   up: (db: SQLiteDatabase) => Promise<void>;
 };
+
+type FoodMigRow = {
+  id: string;
+  name: string;
+  calories: number;
+  protein: number | null;
+  carbs: number | null;
+  fat: number | null;
+  image: string | null;
+  pinned: number;
+  created_at: string;
+  updated_at: string;
+};
+
+type MealMigRow = {
+  id: string;
+  name: string;
+  image: string | null;
+  pinned: number;
+  created_at: string;
+  updated_at: string;
+};
+
+type MealItemMigRow = {
+  meal_id: string;
+  food_id: string;
+  portion: number;
+};
+
+function flattenMealNutrition(
+  items: MealItemMigRow[],
+  foodsById: Map<string, FoodMigRow>,
+): {
+  calories: number;
+  protein: number | null;
+  carbs: number | null;
+  fat: number | null;
+} {
+  if (items.length === 0) {
+    return { calories: 0, protein: null, carbs: null, fat: null };
+  }
+
+  let calories = 0;
+  let proteinSum = 0;
+  let carbsSum = 0;
+  let fatSum = 0;
+  let proteinMissing = false;
+  let carbsMissing = false;
+  let fatMissing = false;
+
+  for (const item of items) {
+    const food = foodsById.get(item.food_id);
+    if (!food) {
+      continue;
+    }
+    calories += food.calories * item.portion;
+    if (food.protein == null) {
+      proteinMissing = true;
+    } else {
+      proteinSum += food.protein * item.portion;
+    }
+    if (food.carbs == null) {
+      carbsMissing = true;
+    } else {
+      carbsSum += food.carbs * item.portion;
+    }
+    if (food.fat == null) {
+      fatMissing = true;
+    } else {
+      fatSum += food.fat * item.portion;
+    }
+  }
+
+  return {
+    calories,
+    protein: proteinMissing ? null : proteinSum,
+    carbs: carbsMissing ? null : carbsSum,
+    fat: fatMissing ? null : fatSum,
+  };
+}
+
+async function migrateToLibraryItems(db: SQLiteDatabase): Promise<void> {
+  await db.execAsync(LIBRARY_ITEMS_SQL);
+
+  const foods = await db.getAllAsync<FoodMigRow>(`SELECT * FROM foods`);
+  const foodsById = new Map(foods.map((food) => [food.id, food]));
+
+  for (const food of foods) {
+    await db.runAsync(
+      `INSERT INTO library_items (
+        id, name, calories, protein, carbs, fat, image, pinned,
+        logging_mode, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'portion', ?, ?)`,
+      food.id,
+      food.name,
+      food.calories,
+      food.protein,
+      food.carbs,
+      food.fat,
+      food.image,
+      food.pinned,
+      food.created_at,
+      food.updated_at,
+    );
+  }
+
+  const meals = await db.getAllAsync<MealMigRow>(`SELECT * FROM meals`);
+  const mealItems = await db.getAllAsync<MealItemMigRow>(
+    `SELECT meal_id, food_id, portion FROM meal_items`,
+  );
+  const itemsByMeal = new Map<string, MealItemMigRow[]>();
+  for (const item of mealItems) {
+    const list = itemsByMeal.get(item.meal_id) ?? [];
+    list.push(item);
+    itemsByMeal.set(item.meal_id, list);
+  }
+
+  for (const meal of meals) {
+    const nutrition = flattenMealNutrition(
+      itemsByMeal.get(meal.id) ?? [],
+      foodsById,
+    );
+    await db.runAsync(
+      `INSERT OR IGNORE INTO library_items (
+        id, name, calories, protein, carbs, fat, image, pinned,
+        logging_mode, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'quick', ?, ?)`,
+      meal.id,
+      meal.name,
+      nutrition.calories,
+      nutrition.protein,
+      nutrition.carbs,
+      nutrition.fat,
+      meal.image,
+      meal.pinned,
+      meal.created_at,
+      meal.updated_at,
+    );
+  }
+
+  // Expand source_type CHECK to include 'library' without rewriting rows.
+  await db.execAsync(`
+    CREATE TABLE daily_log_entries_v3 (
+      id TEXT PRIMARY KEY NOT NULL,
+      date TEXT NOT NULL,
+      time TEXT NOT NULL,
+      source_type TEXT NOT NULL
+        CHECK (source_type IN ('food', 'meal', 'quick', 'library')),
+      source_id TEXT,
+      calories REAL NOT NULL,
+      protein REAL,
+      carbs REAL,
+      fat REAL,
+      food_name_snapshot TEXT NOT NULL,
+      portion REAL
+    );
+    INSERT INTO daily_log_entries_v3
+      SELECT id, date, time, source_type, source_id, calories,
+             protein, carbs, fat, food_name_snapshot, portion
+      FROM daily_log_entries;
+    DROP TABLE daily_log_entries;
+    ALTER TABLE daily_log_entries_v3 RENAME TO daily_log_entries;
+    CREATE INDEX IF NOT EXISTS idx_daily_log_entries_date
+      ON daily_log_entries(date);
+  `);
+
+  await db.execAsync(`
+    DROP TABLE IF EXISTS meal_items;
+    DROP TABLE IF EXISTS meals;
+    DROP TABLE IF EXISTS foods;
+  `);
+}
 
 const migrations: Migration[] = [
   {
@@ -38,6 +210,22 @@ const migrations: Migration[] = [
         DEFAULT_RESET_TIME,
         timestamp,
       );
+    },
+  },
+  {
+    version: 2,
+    up: async (db) => {
+      await db.execAsync(
+        `ALTER TABLE settings ADD COLUMN theme_id TEXT NOT NULL DEFAULT 'modernGreen'`,
+      );
+    },
+  },
+  {
+    version: 3,
+    up: async (db) => {
+      await db.withTransactionAsync(async () => {
+        await migrateToLibraryItems(db);
+      });
     },
   },
 ];

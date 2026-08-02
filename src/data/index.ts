@@ -4,9 +4,7 @@ import { openDatabase } from './database/openDatabase';
 import {
   DailyLogEntryRepository,
   DataRepositories,
-  FoodRepository,
-  MealItemRepository,
-  MealRepository,
+  LibraryItemRepository,
   ProfileRepository,
   SettingsRepository,
 } from './repositories';
@@ -20,9 +18,7 @@ let initPromise: Promise<{
 
 function createRepositories(db: SQLiteDatabase): DataRepositories {
   return {
-    foods: new FoodRepository(db),
-    meals: new MealRepository(db),
-    mealItems: new MealItemRepository(db),
+    libraryItems: new LibraryItemRepository(db),
     dailyLogEntries: new DailyLogEntryRepository(db),
     profile: new ProfileRepository(db),
     settings: new SettingsRepository(db),
@@ -32,7 +28,7 @@ function createRepositories(db: SQLiteDatabase): DataRepositories {
 /**
  * Opens SQLite, runs migrations, and returns typed repositories.
  * Safe to call multiple times — initialization is shared.
- * UI screens must not call repositories until later stages.
+ * Prefer DataProvider / useData() from UI screens.
  */
 export async function initDatabase(): Promise<{
   db: SQLiteDatabase;

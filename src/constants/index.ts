@@ -1,5 +1,3 @@
-export const APP_TITLE = 'Calories Counter';
-
 export const PIN_SLOT_COUNT = 21;
 
 /** Display / seed default until Settings UI is wired to SQLite. */

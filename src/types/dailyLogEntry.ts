@@ -1,4 +1,4 @@
-export type LogSourceType = 'food' | 'meal' | 'quick';
+export type LogSourceType = 'food' | 'meal' | 'quick' | 'library';
 
 export type DailyLogEntry = {
   id: string;
@@ -30,6 +30,4 @@ export type DailyLogEntryInsert = {
   portion?: number | null;
 };
 
-export type DailyLogEntryUpdate = Partial<
-  Omit<DailyLogEntry, 'id'>
->;
+export type DailyLogEntryUpdate = Partial<Omit<DailyLogEntry, 'id'>>;

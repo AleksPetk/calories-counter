@@ -1,9 +1,9 @@
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { colors } from '../theme/colors';
 import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
+import { useTheme } from '../theme/ThemeProvider';
 
 type SectionHeaderProps = {
   title: string;
@@ -11,6 +11,25 @@ type SectionHeaderProps = {
 };
 
 export function SectionHeader({ title, right }: SectionHeaderProps) {
+  const theme = useTheme();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        row: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: spacing.sm + 2,
+          marginTop: spacing.lg,
+        },
+        title: {
+          ...typography.section,
+          color: theme.textPrimary,
+        },
+      }),
+    [theme],
+  );
+
   return (
     <View style={styles.row}>
       <Text style={styles.title}>{title}</Text>
@@ -18,17 +37,3 @@ export function SectionHeader({ title, right }: SectionHeaderProps) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: spacing.sm + 2,
-    marginTop: spacing.lg,
-  },
-  title: {
-    ...typography.section,
-    color: colors.text,
-  },
-});

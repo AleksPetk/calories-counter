@@ -21,14 +21,14 @@ Permanent UI and UX guide for the project. All screens, components, and interact
 
 Primary screen. Default landing after launch. Optimized for the fastest possible log.
 
-### Remaining calorie bar (top)
+### Remaining calorie card (top)
 
-- Always visible at the top of the Home screen.
-- Shows remaining calories relative to the daily goal (exact copy/format TBD — see Open UI Questions).
-- **Green** while under (or at) the daily goal.
-- **Red** when over the daily goal.
-- **Tap the bar** to open **Today’s Log**.
-- Bar updates immediately when entries are added, edited, or deleted.
+- Compact premium card: large remaining number, one goal badge, one linear progress bar.
+- No extra calorie statistics on the card (no “X of Y” captions).
+- Green/success styling while within goal; danger styling when over.
+- Theme-aware surfaces and gradients.
+- **Tap the card** to open **Today’s Log** (when logging ships).
+- Card updates immediately when entries are added, edited, or deleted.
 
 ### Quick calorie input
 
@@ -41,13 +41,13 @@ Primary screen. Default landing after launch. Optimized for the fastest possible
   - Fat
 - Collapsed by default so the common path stays short.
 - Confirm/log control must be obvious and reachable without hunting.
-- After a successful log, return the input to a ready state for the next entry (exact reset behavior TBD).
+- After a successful log, clear fields and keep the form ready for the next entry.
 
 ### Pinned foods / meals (21)
 
 - Up to **21** pinned foods and/or meals on Home.
 - Pins are one-tap log targets (tap = log that item for the current day).
-- Layout must favor glanceability and large targets (exact grid vs rows TBD).
+- Layout: **3-column** compact grid with optional images and theme-aware placeholders.
 - Empty pin slots / empty state should push the user to pin from Library without adding clutter (exact empty UI TBD).
 
 ### Search
@@ -58,7 +58,7 @@ Primary screen. Default landing after launch. Optimized for the fastest possible
 
 ### Scroll behavior
 
-- Top region (calorie bar, quick input, pins, search) defines the fixed conceptual hierarchy.
+- Top region (calorie card, quick input, pins, search) defines the fixed conceptual hierarchy.
 - **Everything below the search can scroll** (search results and any additional list content).
 - Scrolling must not hide the ability to get back to logging quickly (exact sticky vs non-sticky chrome TBD).
 
@@ -66,61 +66,58 @@ Primary screen. Default landing after launch. Optimized for the fastest possible
 
 ## Library
 
-Personal catalog of foods and meals. Setup cost lives here so Home stays fast.
+Personal catalog of library items. Setup cost lives here so Home stays fast.
 
-### Foods
+### Items
 
-- User-created ingredients/items with calorie data (and macros when provided).
-- Create, view, and maintain from Library.
-- Support whatever portion/unit model product decides; UI must make units obvious at log time.
+- One unified list (no Foods / Meals tabs).
+- Each item has a required logging mode: **Quick Log** or **Portion**.
+- Name and calories required; protein, carbs, fat, image, and pin optional.
+- Create/edit via a single Add Item form.
 
-### Meals
+### Logging modes
 
-- Named combinations of foods with portions.
-- Built for one-tap reuse from Home when pinned.
-- Editing a meal definition should not silently rewrite past log history without a clear rule (see Open UI Questions).
+- **Quick Log** — one tap logs saved calories/macros immediately.
+- **Portion** — tap opens portion presets (1 / 1.5 / 2) or custom decimal.
 
 ### Pin / unpin
 
-- Any food or meal can be pinned or unpinned.
+- Any item can be pinned or unpinned.
 - Pinning adds it to the Home pin set (subject to the 21 cap).
-- Unpinning removes it from Home pins without deleting the library item.
-- When the pin limit is reached, the UI must make the limit clear and offer a path to free a slot (exact pattern TBD).
+- Cards and pins show a small **Quick** / **Portion** badge.
 
 ### Images
 
-- Foods and meals may have images.
+- Items may have images.
 - Images are optional; lists and pins must remain usable and fast without them.
-- Image treatment should stay consistent (size, crop, placeholder) across Library and pins.
 
 ### Search
 
-- Library has its own search over foods and meals.
-- Same minimal, fast interaction language as Home search where possible.
+- One Library search over all items.
 
 ### Edit / Delete
 
-- Edit food or meal details (name, nutrition, image, composition for meals).
-- Delete with a clear confirmation when the action is destructive.
-- Deleting should define what happens to pins and future logging; past entries policy TBD.
+- Edit item details (name, nutrition, mode, image, pin).
+- Delete with confirmation.
+- Past log snapshots are never rewritten when library items change.
 
 ---
 
 ## Today’s Log
 
-Opened from the Home calorie bar (and any other approved entry points). Shows what was logged for the current day (respecting day reset time from Settings).
+Opened from the Home calorie card (and any other approved entry points). Shows what was logged for the current day (respecting day reset time from Settings).
 
 ### Timeline
 
-- Chronological list of foods/meals eaten for today.
-- Each row shows enough to identify the entry and its calorie impact at a glance.
-- Order and time display rules TBD (newest first vs chronological ascending).
+- Chronological list (`time` ascending).
+- Each row shows name snapshot, calories, portion when applicable, macros when available, and logged time.
 
 ### Edit / Delete
 
 - Every entry can be edited or deleted.
-- Edit returns the user to a focused editor, not a maze of screens.
-- Delete is immediate in effect after confirmation (confirmation strictness TBD for mis-taps).
+- Edit opens a focused editor.
+- Delete uses confirmation.
+- **Undo last log** is available on Home and Today’s Log for the active day.
 
 ### Instant recalculation
 
@@ -131,6 +128,11 @@ Opened from the Home calorie bar (and any other approved entry points). Shows wh
 
 - If an entry has protein / carbs / fat, show them.
 - If macros are missing, do not invent values; show calories cleanly without empty macro clutter.
+
+### Snapshots
+
+- Log entries store name and nutrition at log time.
+- Later library edits do not rewrite history.
 
 ---
 
@@ -171,11 +173,19 @@ Opened from the Home calorie bar (and any other approved entry points). Shows wh
 ### Tutorial replay
 
 - Access to replay onboarding / tutorial without resetting user data.
+- The single onboarding tutorial must mention that **themes can be changed later in Settings**. Do not create a separate theme tutorial.
+- The same tutorial must explain logging modes:
+  - **Quick Log** is the fastest option and logs in one tap.
+  - **Portion** is more flexible but requires one extra step.
+  - Use Quick Log for meals or fixed servings.
+  - Use Portion when the amount changes.
 
-### Theme (future)
+### Theme
 
-- Theme controls are reserved for later (e.g. system / light / dark).
-- Do not build theme UI until approved; placeholder in this guide only.
+- Users pick from registered visual themes in Settings (swatch picker).
+- Selection applies app-wide immediately and persists locally (`settings.theme_id`).
+- Default: **Modern Green**.
+- Themes change colors/gradients/shadows only — not layout, spacing structure, or behavior.
 
 ### Purchase status
 
@@ -219,15 +229,15 @@ Opened from the Home calorie bar (and any other approved entry points). Shows wh
 
 Decisions still needed — do not assume answers in implementation:
 
-1. **Remaining bar content** — Show remaining only, remaining + goal, consumed / goal, or a visual progress fill? Exact number formatting?
+1. **Remaining card content** — Resolved for Stage 5.1: remaining number + goal badge + progress bar only (no extra calorie stats).
 2. **At-goal color** — Treat exact goal as green (under/at) or a distinct state?
 3. **Quick log confirm** — Explicit “Log” button vs submit on keyboard “done”? Both?
 4. **After quick log** — Clear all fields, keep expanded state, or collapse again?
 5. **Optional macro units** — Grams only? Hide macro fields entirely until goal/macros product decision is final?
-6. **Pin layout for 21** — Grid dimensions (e.g. 3×7), ordering (manual vs most used), and overflow when fewer than 21?
+6. **Pin layout for 21** — Resolved for Stage 5.1: 3-column compact grid; ordering still TBD (manual vs most used).
 7. **Pin tap behavior for foods needing portions** — One-tap with default portion, or open portion entry first?
 8. **Pin limit UX** — Block with message, force replace, or “choose which to unpin” flow?
-9. **Sticky chrome on Home** — Does the calorie bar (and/or quick input) stay fixed while results scroll?
+9. **Sticky chrome on Home** — Does the calorie card (and/or quick input) stay fixed while results scroll?
 10. **Search results actions** — One-tap log vs open detail; difference between food and meal?
 11. **Image source** — Camera, photo library, both; required aspect ratio; can pins show images or icon/color only for speed?
 12. **Today’s Log ordering** — Newest first or oldest first? Show timestamps?
@@ -235,7 +245,7 @@ Decisions still needed — do not assume answers in implementation:
 14. **History picker** — Full calendar, vertical day list, or both?
 15. **Editing past days from History** — Same screen component as Today’s Log or a separate mode?
 16. **Day reset indicator** — How does Home show that “today” started at e.g. 04:00?
-17. **Tutorial** — First-run only content outline; modal vs dedicated screens?
+17. **Tutorial** — First-run only; must include that themes are changeable in Settings; modal vs dedicated screens still TBD.
 18. ~~**Navigation shell**~~ Resolved: bottom tabs in order Home | Library | History | Settings (Home is default).
 19. **Paywall placement** — Settings only vs soft gate after trial on log actions?
 20. **Empty states** — Exact copy and CTA for no pins, empty library, empty day log?

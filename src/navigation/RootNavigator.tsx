@@ -4,10 +4,10 @@ import { Platform, StyleSheet } from 'react-native';
 
 import { TAB_LABELS } from '../constants';
 import { HistoryScreen } from '../screens/HistoryScreen';
-import { HomeScreen } from '../screens/HomeScreen';
-import { LibraryScreen } from '../screens/LibraryScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
-import { colors } from '../theme/colors';
+import { useTheme } from '../theme/ThemeProvider';
+import { HomeNavigator } from './HomeNavigator';
+import { LibraryNavigator } from './LibraryNavigator';
 import { RootTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -23,13 +23,15 @@ const TAB_ICONS: Record<
 };
 
 export function RootNavigator() {
+  const theme = useTheme();
+
   return (
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: colors.tabActive,
-        tabBarInactiveTintColor: colors.tabInactive,
+        tabBarActiveTintColor: theme.tabActive,
+        tabBarInactiveTintColor: theme.tabInactive,
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
@@ -46,14 +48,14 @@ export function RootNavigator() {
           );
         },
         tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.borderSubtle,
+          backgroundColor: theme.surface,
+          borderTopColor: theme.border,
           borderTopWidth: StyleSheet.hairlineWidth,
           height: Platform.OS === 'ios' ? 88 : 68,
           paddingTop: 6,
           ...Platform.select({
             ios: {
-              shadowColor: '#0B1410',
+              shadowColor: theme.textPrimary,
               shadowOffset: { width: 0, height: -4 },
               shadowOpacity: 0.05,
               shadowRadius: 12,
@@ -67,12 +69,12 @@ export function RootNavigator() {
     >
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
+        component={HomeNavigator}
         options={{ title: TAB_LABELS.home }}
       />
       <Tab.Screen
         name="Library"
-        component={LibraryScreen}
+        component={LibraryNavigator}
         options={{ title: TAB_LABELS.library }}
       />
       <Tab.Screen

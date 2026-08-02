@@ -1,23 +1,17 @@
 import { DailyLogEntryRepository } from './DailyLogEntryRepository';
-import { FoodRepository } from './FoodRepository';
-import { MealItemRepository } from './MealItemRepository';
-import { MealRepository } from './MealRepository';
+import { LibraryItemRepository } from './LibraryItemRepository';
 import { ProfileRepository } from './ProfileRepository';
 import { SettingsRepository } from './SettingsRepository';
 
 export {
   DailyLogEntryRepository,
-  FoodRepository,
-  MealItemRepository,
-  MealRepository,
+  LibraryItemRepository,
   ProfileRepository,
   SettingsRepository,
 };
 
 export type DataRepositories = {
-  foods: FoodRepository;
-  meals: MealRepository;
-  mealItems: MealItemRepository;
+  libraryItems: LibraryItemRepository;
   dailyLogEntries: DailyLogEntryRepository;
   profile: ProfileRepository;
   settings: SettingsRepository;

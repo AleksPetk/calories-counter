@@ -1,124 +1,159 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { useMemo } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, gradients } from '../theme/colors';
 import { radii } from '../theme/radii';
-import { shadows } from '../theme/shadows';
 import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
+import { useTheme } from '../theme/ThemeProvider';
 
 export type RemainingCaloriesSummary = {
-  remaining: number;
+  /** Absolute number shown in the hero (remaining OR exceeded). */
+  displayAmount: number;
   goal: number;
-  isUnderGoal: boolean;
+  isUnderOrAtGoal: boolean;
+  consumed: number;
 };
 
 type RemainingCaloriesCardProps = {
   summary: RemainingCaloriesSummary;
+  onPress?: () => void;
 };
 
-export function RemainingCaloriesCard({ summary }: RemainingCaloriesCardProps) {
-  const consumed = Math.max(summary.goal - summary.remaining, 0);
-  const progress = summary.goal > 0 ? Math.min(consumed / summary.goal, 1) : 0;
-  const gradient = summary.isUnderGoal ? gradients.emerald : gradients.over;
+export function RemainingCaloriesCard({
+  summary,
+  onPress,
+}: RemainingCaloriesCardProps) {
+  const theme = useTheme();
+  const progress =
+    summary.goal > 0
+      ? Math.min(summary.consumed / summary.goal, 1)
+      : summary.consumed > 0
+        ? 1
+        : 0;
+  const progressGradient = summary.isUnderOrAtGoal
+    ? theme.gradients.progressUnder
+    : theme.gradients.progressOver;
+  const accent = summary.isUnderOrAtGoal ? theme.success : theme.danger;
+  const label = summary.isUnderOrAtGoal ? 'remaining' : 'over';
+
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        card: {
+          borderRadius: radii.lg,
+          marginBottom: spacing.md,
+          overflow: 'hidden',
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: theme.border,
+          ...theme.softShadow,
+        },
+        pressed: {
+          opacity: 0.96,
+        },
+        gradient: {
+          paddingHorizontal: spacing.md,
+          paddingTop: spacing.md - 2,
+          paddingBottom: spacing.sm + 4,
+        },
+        topRow: {
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+        },
+        value: {
+          fontSize: 44,
+          fontWeight: '700',
+          letterSpacing: -1.4,
+          lineHeight: 48,
+          color: summary.isUnderOrAtGoal ? theme.textPrimary : theme.danger,
+        },
+        label: {
+          ...typography.caption,
+          color: theme.textSecondary,
+          marginTop: 1,
+          textTransform: 'lowercase',
+        },
+        goalBadge: {
+          backgroundColor: theme.elevatedSurface,
+          borderRadius: radii.pill,
+          paddingHorizontal: spacing.sm + 2,
+          paddingVertical: spacing.xs + 1,
+          marginTop: 4,
+          borderWidth: StyleSheet.hairlineWidth,
+          borderColor: theme.border,
+        },
+        goalText: {
+          ...typography.micro,
+          color: theme.textSecondary,
+          fontWeight: '600',
+        },
+        animationSlot: {
+          height: 6,
+        },
+        track: {
+          height: 6,
+          borderRadius: radii.pill,
+          backgroundColor: theme.progressTrack,
+          overflow: 'hidden',
+        },
+        fill: {
+          height: '100%',
+          borderRadius: radii.pill,
+          minWidth: 8,
+        },
+        accentBar: {
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          width: 3,
+          backgroundColor: accent,
+        },
+      }),
+    [theme, accent, summary.isUnderOrAtGoal],
+  );
 
   return (
     <Pressable
+      onPress={onPress}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
       accessibilityRole="button"
-      accessibilityLabel={`${summary.remaining} calories remaining`}
+      accessibilityLabel={
+        summary.isUnderOrAtGoal
+          ? `${Math.round(summary.displayAmount)} calories remaining`
+          : `${Math.round(summary.displayAmount)} calories over goal`
+      }
     >
-      <View style={styles.topRow}>
-        <View>
-          <Text style={styles.value}>{summary.remaining}</Text>
-          <Text style={styles.label}>remaining</Text>
+      <LinearGradient
+        colors={[...theme.gradients.card]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradient}
+      >
+        <View style={styles.accentBar} />
+        <View style={styles.topRow}>
+          <View>
+            <Text style={styles.value}>{Math.round(summary.displayAmount)}</Text>
+            <Text style={styles.label}>{label}</Text>
+          </View>
+          <View style={styles.goalBadge}>
+            <Text style={styles.goalText}>Goal {Math.round(summary.goal)}</Text>
+          </View>
         </View>
-        <View style={styles.goalBadge}>
-          <Text style={styles.goalText}>Goal {summary.goal}</Text>
-        </View>
-      </View>
 
-      {/* Reserved for future progress animations (ring / pulse). */}
-      <View style={styles.animationSlot} pointerEvents="none" />
+        {/* Reserved for future subtle progress animation. */}
+        <View style={styles.animationSlot} pointerEvents="none" />
 
-      <View style={styles.progressBlock}>
         <View style={styles.track}>
           <LinearGradient
-            colors={[...gradient]}
+            colors={[...progressGradient]}
             start={{ x: 0, y: 0.5 }}
             end={{ x: 1, y: 0.5 }}
             style={[styles.fill, { width: `${Math.round(progress * 100)}%` }]}
           />
         </View>
-        <Text style={styles.progressCaption}>
-          {consumed} of {summary.goal} kcal
-        </Text>
-      </View>
+      </LinearGradient>
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.xl,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.md,
-    marginBottom: spacing.lg,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.borderSubtle,
-    ...shadows.soft,
-  },
-  pressed: {
-    opacity: 0.96,
-  },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-  },
-  value: {
-    ...typography.calorieHero,
-    color: colors.text,
-  },
-  label: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: 2,
-    textTransform: 'lowercase',
-  },
-  goalBadge: {
-    backgroundColor: colors.surfaceMuted,
-    borderRadius: radii.pill,
-    paddingHorizontal: spacing.sm + 4,
-    paddingVertical: spacing.xs + 2,
-    marginTop: spacing.xs,
-  },
-  goalText: {
-    ...typography.micro,
-    color: colors.textSecondary,
-  },
-  animationSlot: {
-    height: 10,
-  },
-  progressBlock: {
-    marginTop: spacing.xs,
-  },
-  track: {
-    height: 10,
-    borderRadius: radii.pill,
-    backgroundColor: colors.progressTrack,
-    overflow: 'hidden',
-  },
-  fill: {
-    height: '100%',
-    borderRadius: radii.pill,
-    minWidth: 10,
-  },
-  progressCaption: {
-    ...typography.micro,
-    color: colors.textTertiary,
-    marginTop: spacing.sm,
-  },
-});

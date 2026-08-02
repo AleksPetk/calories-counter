@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Calories Counter",
+    "name": "QuickCal",
     "slug": "calories-counter",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -22,7 +22,13 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow QuickCal to attach photos to foods and meals."
+        }
+      ]
     ]
   }
 }

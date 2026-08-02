@@ -144,7 +144,7 @@ Features that fight the philosophy (large search DBs, social, ads, subscription 
 - Visual design direction (Stage 3.1)
 - No business logic wired to persistence
 
-### Stage 4 — Local Database — Current
+### Stage 4 — Local Database — Done
 
 - SQLite setup via `expo-sqlite`
 - Typed domain models
@@ -152,21 +152,29 @@ Features that fight the philosophy (large search DBs, social, ads, subscription 
 - Migration strategy (`PRAGMA user_version`)
 - DB initialized on app launch; UI not yet reading/writing repositories
 
-### Stage 5 — Food Library
+### Stage 5 — Food Library — Done
 
 - Foods and meals
 - Create, edit, delete
 - Search
 - Pin/unpin
-- Optional meal images
+- Optional food/meal images (persisted under the app document directory)
 
-### Stage 6 — Logging Core
+### Stage 5.1 — Theme System and Home UI Refinement — Done
 
-- One-tap meal logging
-- Portion popup for foods
-- Today’s log
-- Edit/delete entries
-- Undo recent entry
+- Reusable multi-theme system (one file per theme + central registry)
+- Settings theme picker with persistence
+- Compact Home calorie card and 3-column pin grid
+- Keyboard-aware Food/Meal editors
+
+### Stage 6 — Logging Core — In progress
+
+- One-tap Quick Log items + Portion popup logging
+- Unified `library_items` model (schema v3 migration)
+- Today’s log, edit/delete, undo
+- QuickCal branding config
+
+Do not mark complete until device verification.
 
 ### Stage 7 — History, Settings, and Tutorial
 
@@ -175,7 +183,7 @@ Features that fight the philosophy (large search DBs, social, ads, subscription 
 - Daily totals
 - Daily goal
 - Editable reset time
-- Replay tutorial
+- Replay tutorial (must mention themes are changeable in Settings)
 - App information
 
 ### Stage 8 — Trial and One-Time Purchase
@@ -208,34 +216,40 @@ Stack: React Native + Expo (TypeScript), React Navigation (not Expo Router).
 ### Current app structure
 
 ```
-App.tsx                 # SafeAreaProvider + NavigationContainer + initDatabase()
+App.tsx                 # SafeAreaProvider + DataProvider + ThemeProvider + Navigation
 src/
-  navigation/           # Bottom tab shell
-  screens/              # Home, Library, History, Settings (UI shell)
+  navigation/           # Bottom tabs + Library stack
+  screens/              # Home, Library (+ editors), History, Settings
   components/           # Shared UI
   constants/            # Static labels/defaults
-  theme/                # colors, spacing, typography, radii, shadows
+  theme/                # Theme registry, provider, layout tokens, themes/*
+  config/               # App brand (QuickCal) identity
   types/                # Domain TypeScript models
   data/
     database/           # open, schema, migrate, mappers
     repositories/       # Food, Meal, MealItem, DailyLogEntry, Profile, Settings
+    images/             # Persist/delete library photos in documentDirectory
+    library/            # Meal nutrition + pin-limit helpers
+    logging/            # Active day, totals, log create/undo helpers
+    seed/               # Dev-only seed catalog (gated by __DEV__)
+    DataProvider.tsx    # DB init, optional seed, refresh signal
 ```
 
 ### SQLite schema (Stage 4)
 
 | Table | Purpose |
 |-------|---------|
-| `foods` | User food library items |
-| `meals` | Named meal compositions |
-| `meal_items` | Meal ↔ food portions + order |
+| `library_items` | Unified user library (Quick Log or Portion mode) |
 | `daily_log_entries` | Per-day logged intake snapshots |
 | `profile` | Single-row user profile |
 | `settings` | Single-row app settings |
 
+Legacy notes:
+- Pre-v3 `foods` / `meals` / `meal_items` are migrated into `library_items` then dropped.
+- Historical log `source_type` values `food` / `meal` / `quick` remain; new library logs use `library`.
+
 Relationships:
-- `meal_items.meal_id` → `meals.id` (CASCADE delete)
-- `meal_items.food_id` → `foods.id` (RESTRICT delete)
-- `daily_log_entries.source_id` references a food/meal id when `source_type` is food/meal (nullable for quick logs; not enforced as FK so history survives library deletes)
+- `daily_log_entries.source_id` may reference a library item id (or legacy food/meal id); not enforced as FK so history survives library deletes
 
 Schema defaults chosen for open product questions:
 - IDs: TEXT UUIDs
@@ -316,7 +330,7 @@ Optional (purchase only):
 10. **Home layout?** Grid of pinned meals vs ranked list vs both.
 11. **Minimum taps budget?** Concrete targets (e.g. pinned meal = 1 tap; new ingredient log ≤ 3).
 12. **Dark mode?** System-only, or defer.
-13. **Brand name locked?** “Calories Counter” vs shorter product name for store.
+13. ~~**Brand name locked?**~~ Resolved for product UI: **QuickCal** (subtitle: Calorie Counter) via `src/config/appBrand.ts`.
 
 ### Technical
 

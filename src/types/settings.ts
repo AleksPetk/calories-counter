@@ -12,6 +12,8 @@ export type Settings = {
   historyRetention: number | null;
   tutorialSeen: boolean;
   purchaseState: PurchaseState;
+  /** Registered theme id (see `src/theme/registry.ts`). */
+  themeId: string;
   updatedAt: string;
 };
 

@@ -1,6 +1,10 @@
-export type { Food, FoodInsert, FoodUpdate } from './food';
-export type { Meal, MealInsert, MealUpdate } from './meal';
-export type { MealItem, MealItemInsert, MealItemUpdate } from './mealItem';
+export type {
+  LibraryItem,
+  LibraryItemInsert,
+  LibraryItemUpdate,
+  LoggingMode,
+} from './libraryItem';
+export { normalizeLoggingMode } from './libraryItem';
 export type {
   DailyLogEntry,
   DailyLogEntryInsert,

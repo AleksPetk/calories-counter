@@ -19,6 +19,14 @@ export class DailyLogEntryRepository {
     return rows.map(mapDailyLogEntry);
   }
 
+  async getLatestByDate(date: string): Promise<DailyLogEntry | null> {
+    const row = await this.db.getFirstAsync<DailyLogEntryRow>(
+      `SELECT * FROM daily_log_entries WHERE date = ? ORDER BY time DESC LIMIT 1`,
+      date,
+    );
+    return row ? mapDailyLogEntry(row) : null;
+  }
+
   async getById(id: string): Promise<DailyLogEntry | null> {
     const row = await this.db.getFirstAsync<DailyLogEntryRow>(
       `SELECT * FROM daily_log_entries WHERE id = ?`,

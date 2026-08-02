@@ -1,5 +1,6 @@
 /**
- * Initial schema (version 1).
+ * Initial schema (version 1) — historical.
+ * Later migrations evolve toward library_items (v3).
  *
  * Portion is stored as REAL; unit semantics are deferred.
  * Image fields store local filesystem paths, not bundled assets.
@@ -80,6 +81,24 @@ CREATE TABLE IF NOT EXISTS settings (
   tutorial_seen INTEGER NOT NULL DEFAULT 0 CHECK (tutorial_seen IN (0, 1)),
   purchase_state TEXT NOT NULL DEFAULT 'trial'
     CHECK (purchase_state IN ('trial', 'purchased', 'locked')),
+  updated_at TEXT NOT NULL
+);
+`;
+
+/** Canonical library_items DDL after migration v3. */
+export const LIBRARY_ITEMS_SQL = `
+CREATE TABLE IF NOT EXISTS library_items (
+  id TEXT PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL,
+  calories REAL NOT NULL,
+  protein REAL,
+  carbs REAL,
+  fat REAL,
+  image TEXT,
+  pinned INTEGER NOT NULL DEFAULT 0 CHECK (pinned IN (0, 1)),
+  logging_mode TEXT NOT NULL DEFAULT 'portion'
+    CHECK (logging_mode IN ('quick', 'portion')),
+  created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
 `;

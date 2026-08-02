@@ -32,13 +32,14 @@ export class SettingsRepository {
     await this.db.runAsync(
       `UPDATE settings SET
         daily_goal = ?, reset_time = ?, history_retention = ?,
-        tutorial_seen = ?, purchase_state = ?, updated_at = ?
+        tutorial_seen = ?, purchase_state = ?, theme_id = ?, updated_at = ?
       WHERE id = 1`,
       next.dailyGoal,
       next.resetTime,
       next.historyRetention,
       boolToInt(next.tutorialSeen),
       next.purchaseState,
+      next.themeId,
       next.updatedAt,
     );
 

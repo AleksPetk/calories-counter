@@ -1,9 +1,7 @@
 import type {
   DailyLogEntry,
-  Food,
+  LibraryItem,
   LogSourceType,
-  Meal,
-  MealItem,
   Profile,
   PurchaseState,
   Settings,
@@ -11,9 +9,10 @@ import type {
   GoalType,
   Sex,
 } from '../../types';
+import { normalizeLoggingMode } from '../../types/libraryItem';
 import { intToBool } from './utils';
 
-export type FoodRow = {
+export type LibraryItemRow = {
   id: string;
   name: string;
   calories: number;
@@ -22,25 +21,9 @@ export type FoodRow = {
   fat: number | null;
   image: string | null;
   pinned: number;
+  logging_mode: string;
   created_at: string;
   updated_at: string;
-};
-
-export type MealRow = {
-  id: string;
-  name: string;
-  image: string | null;
-  pinned: number;
-  created_at: string;
-  updated_at: string;
-};
-
-export type MealItemRow = {
-  id: string;
-  meal_id: string;
-  food_id: string;
-  portion: number;
-  sort_order: number;
 };
 
 export type DailyLogEntryRow = {
@@ -77,10 +60,15 @@ export type SettingsRow = {
   history_retention: number | null;
   tutorial_seen: number;
   purchase_state: string;
+  theme_id: string;
   updated_at: string;
 };
 
-export function mapFood(row: FoodRow): Food {
+export function mapLibraryItem(row: LibraryItemRow): LibraryItem {
+  const rawMode =
+    row.logging_mode ??
+    (row as LibraryItemRow & { loggingMode?: string }).loggingMode;
+
   return {
     id: row.id,
     name: row.name,
@@ -90,29 +78,9 @@ export function mapFood(row: FoodRow): Food {
     fat: row.fat,
     image: row.image,
     pinned: intToBool(row.pinned),
+    loggingMode: normalizeLoggingMode(rawMode),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-  };
-}
-
-export function mapMeal(row: MealRow): Meal {
-  return {
-    id: row.id,
-    name: row.name,
-    image: row.image,
-    pinned: intToBool(row.pinned),
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-  };
-}
-
-export function mapMealItem(row: MealItemRow): MealItem {
-  return {
-    id: row.id,
-    mealId: row.meal_id,
-    foodId: row.food_id,
-    portion: row.portion,
-    sortOrder: row.sort_order,
   };
 }
 
@@ -155,6 +123,7 @@ export function mapSettings(row: SettingsRow): Settings {
     historyRetention: row.history_retention,
     tutorialSeen: intToBool(row.tutorial_seen),
     purchaseState: row.purchase_state as PurchaseState,
+    themeId: row.theme_id,
     updatedAt: row.updated_at,
   };
 }

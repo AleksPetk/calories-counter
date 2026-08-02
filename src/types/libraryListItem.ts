@@ -1,7 +1,8 @@
 export type LibraryListItem = {
   id: string;
   name: string;
-  calories?: number;
-  kind: 'food' | 'meal';
+  calories: number;
+  loggingMode: 'quick' | 'portion';
   pinned: boolean;
+  image?: string | null;
 };
