@@ -17,6 +17,7 @@ import {
 import { PrimaryButton } from '../../components/PrimaryButton';
 import { Screen } from '../../components/Screen';
 import { useData } from '../../data/DataProvider';
+import { useEntitlement } from '../../entitlement';
 import {
   deletePersistedLibraryImage,
   persistLibraryImage,
@@ -27,6 +28,7 @@ import {
   parsePositiveCalories,
 } from '../../data/logging/logMath';
 import { LibraryStackParamList } from '../../navigation/types';
+import { TutorialAnchor, useTutorialOptional } from '../../tutorial';
 import type { LoggingMode } from '../../types';
 import { radii } from '../../theme/radii';
 import { spacing } from '../../theme/spacing';
@@ -37,6 +39,8 @@ type Props = NativeStackScreenProps<LibraryStackParamList, 'LibraryItemEditor'>;
 
 export function LibraryItemEditorScreen({ navigation, route }: Props) {
   const theme = useTheme();
+  const { requireWriteAccess } = useEntitlement();
+  const tutorial = useTutorialOptional();
   const itemId = route.params?.itemId;
   const { repositories, refresh } = useData();
   const [name, setName] = useState('');
@@ -197,21 +201,24 @@ export function LibraryItemEditorScreen({ navigation, route }: Props) {
     }
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
-      quality: 0.85,
+      quality: 1,
     });
     if (result.canceled || !result.assets[0]?.uri) {
       return;
     }
+    const previousDraft = imageUri;
     try {
       const permanent = await persistLibraryImage(result.assets[0].uri);
-      if (imageUri && imageUri !== committedImageUri) {
-        await deletePersistedLibraryImage(imageUri);
+      if (previousDraft && previousDraft !== committedImageUri) {
+        await deletePersistedLibraryImage(previousDraft);
       }
       setImageUri(permanent);
     } catch (error) {
       Alert.alert(
         'Image error',
-        error instanceof Error ? error.message : 'Could not save image',
+        error instanceof Error
+          ? error.message
+          : 'Could not optimize or save image. Previous image was kept.',
       );
     }
   };
@@ -224,6 +231,9 @@ export function LibraryItemEditorScreen({ navigation, route }: Props) {
   };
 
   const onSave = async () => {
+    if (!requireWriteAccess()) {
+      return;
+    }
     if (!repositories) {
       return;
     }
@@ -314,26 +324,34 @@ export function LibraryItemEditorScreen({ navigation, route }: Props) {
         />
 
         <Text style={styles.label}>Logging mode</Text>
-        <View style={styles.modeRow}>
-          <Pressable
-            style={[
-              styles.modeChip,
-              loggingMode === 'quick' && styles.modeChipActive,
-            ]}
-            onPress={() => setLoggingMode('quick')}
-          >
-            <Text style={styles.modeText}>Quick Log</Text>
-          </Pressable>
-          <Pressable
-            style={[
-              styles.modeChip,
-              loggingMode === 'portion' && styles.modeChipActive,
-            ]}
-            onPress={() => setLoggingMode('portion')}
-          >
-            <Text style={styles.modeText}>Portion</Text>
-          </Pressable>
-        </View>
+        <TutorialAnchor id="library.mode" style={{ alignSelf: 'stretch' }}>
+          <View style={styles.modeRow}>
+            <Pressable
+              style={[
+                styles.modeChip,
+                loggingMode === 'quick' && styles.modeChipActive,
+              ]}
+              onPress={() => {
+                setLoggingMode('quick');
+                tutorial?.notifyAction('selected-logging-mode');
+              }}
+            >
+              <Text style={styles.modeText}>Quick Log</Text>
+            </Pressable>
+            <Pressable
+              style={[
+                styles.modeChip,
+                loggingMode === 'portion' && styles.modeChipActive,
+              ]}
+              onPress={() => {
+                setLoggingMode('portion');
+                tutorial?.notifyAction('selected-logging-mode');
+              }}
+            >
+              <Text style={styles.modeText}>Portion</Text>
+            </Pressable>
+          </View>
+        </TutorialAnchor>
         <Text style={styles.modeHint}>
           {loggingMode === 'quick'
             ? 'One tap logs the saved calories immediately.'
@@ -367,13 +385,17 @@ export function LibraryItemEditorScreen({ navigation, route }: Props) {
           placeholderTextColor={theme.placeholder}
         />
 
-        <Pressable
-          onPress={() => setPinned((value) => !value)}
-          style={styles.pinRow}
-        >
-          <Text style={styles.pinLabel}>{pinned ? 'Pinned' : 'Pin to Home'}</Text>
-          <Text style={styles.pinValue}>{pinned ? 'On' : 'Off'}</Text>
-        </Pressable>
+        <TutorialAnchor id="library.pin" style={{ alignSelf: 'stretch' }}>
+          <Pressable
+            onPress={() => setPinned((value) => !value)}
+            style={styles.pinRow}
+          >
+            <Text style={styles.pinLabel}>
+              {pinned ? 'Pinned' : 'Pin to Home'}
+            </Text>
+            <Text style={styles.pinValue}>{pinned ? 'On' : 'Off'}</Text>
+          </Pressable>
+        </TutorialAnchor>
 
         <PrimaryButton
           label={saving ? 'Saving…' : itemId ? 'Save' : 'Create'}

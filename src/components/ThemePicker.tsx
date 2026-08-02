@@ -7,6 +7,7 @@ import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
 import { useTheme, useThemeControls } from '../theme/ThemeProvider';
 import type { ThemeId } from '../theme/types';
+import { TutorialAnchor } from '../tutorial';
 
 export function ThemePicker() {
   const theme = useTheme();
@@ -72,50 +73,52 @@ export function ThemePicker() {
   );
 
   return (
-    <View style={styles.section}>
-      <Text style={styles.heading}>Theme</Text>
-      <Text style={styles.hint}>Applies across the app immediately</Text>
-      <View style={styles.row}>
-        {THEME_LIST.map((entry) => {
-          const selected = entry.id === themeId;
-          return (
-            <Pressable
-              key={entry.id}
-              onPress={() => {
-                void setThemeId(entry.id as ThemeId);
-              }}
-              style={[styles.swatch, selected && styles.swatchSelected]}
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
-              accessibilityLabel={`${entry.name} theme`}
-            >
-              <View style={styles.preview}>
-                <View
-                  style={[
-                    styles.previewBg,
-                    { backgroundColor: entry.preview.background },
-                  ]}
-                />
-                <View
-                  style={[
-                    styles.previewPrimary,
-                    { backgroundColor: entry.preview.primary },
-                  ]}
-                />
-                <View
-                  style={[
-                    styles.previewAccent,
-                    { backgroundColor: entry.preview.accent },
-                  ]}
-                />
-              </View>
-              <Text style={styles.label} numberOfLines={1}>
-                {entry.name}
-              </Text>
-            </Pressable>
-          );
-        })}
+    <TutorialAnchor id="settings.theme" style={{ alignSelf: 'stretch' }}>
+      <View style={styles.section}>
+        <Text style={styles.heading}>Theme</Text>
+        <Text style={styles.hint}>Applies across the app immediately</Text>
+        <View style={styles.row}>
+          {THEME_LIST.map((entry) => {
+            const selected = entry.id === themeId;
+            return (
+              <Pressable
+                key={entry.id}
+                onPress={() => {
+                  void setThemeId(entry.id as ThemeId);
+                }}
+                style={[styles.swatch, selected && styles.swatchSelected]}
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                accessibilityLabel={`${entry.name} theme`}
+              >
+                <View style={styles.preview}>
+                  <View
+                    style={[
+                      styles.previewBg,
+                      { backgroundColor: entry.preview.background },
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.previewPrimary,
+                      { backgroundColor: entry.preview.primary },
+                    ]}
+                  />
+                  <View
+                    style={[
+                      styles.previewAccent,
+                      { backgroundColor: entry.preview.accent },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.label} numberOfLines={1}>
+                  {entry.name}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
-    </View>
+    </TutorialAnchor>
   );
 }

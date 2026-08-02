@@ -2,10 +2,11 @@ import type { SQLiteDatabase } from 'expo-sqlite';
 
 import {
   DEFAULT_DAILY_GOAL,
+  DEFAULT_HISTORY_RETENTION_DAYS,
   DEFAULT_RESET_TIME,
   SCHEMA_VERSION,
 } from './constants';
-import { LIBRARY_ITEMS_SQL, SCHEMA_V1_SQL } from './schema';
+import { ENTITLEMENT_SQL, LIBRARY_ITEMS_SQL, SCHEMA_V1_SQL } from './schema';
 import { nowIso } from './utils';
 
 type Migration = {
@@ -205,9 +206,10 @@ const migrations: Migration[] = [
         `INSERT OR IGNORE INTO settings (
           id, daily_goal, reset_time, history_retention,
           tutorial_seen, purchase_state, updated_at
-        ) VALUES (1, ?, ?, NULL, 0, 'trial', ?)`,
+        ) VALUES (1, ?, ?, ?, 0, 'trial', ?)`,
         DEFAULT_DAILY_GOAL,
         DEFAULT_RESET_TIME,
+        DEFAULT_HISTORY_RETENTION_DAYS,
         timestamp,
       );
     },
@@ -226,6 +228,39 @@ const migrations: Migration[] = [
       await db.withTransactionAsync(async () => {
         await migrateToLibraryItems(db);
       });
+    },
+  },
+  {
+    version: 4,
+    up: async (db) => {
+      await db.execAsync(ENTITLEMENT_SQL);
+      const timestamp = nowIso();
+      await db.runAsync(
+        `INSERT OR IGNORE INTO entitlement (
+          id, trial_started_at, trial_expires_at,
+          store_purchased, store_product_id, store_platform,
+          store_purchased_at, last_store_check_at,
+          simulated_purchased, updated_at
+        ) VALUES (1, NULL, NULL, 0, NULL, NULL, NULL, NULL, 0, ?)`,
+        timestamp,
+      );
+
+      // Migrate legacy settings.purchase_state=purchased into store cache
+      // only as a local hint — real store verification still required on refresh.
+      const settings = await db.getFirstAsync<{ purchase_state: string }>(
+        `SELECT purchase_state FROM settings WHERE id = 1`,
+      );
+      if (settings?.purchase_state === 'purchased') {
+        await db.runAsync(
+          `UPDATE entitlement SET
+            store_purchased = 1,
+            store_purchased_at = COALESCE(store_purchased_at, ?),
+            updated_at = ?
+          WHERE id = 1 AND store_purchased = 0`,
+          timestamp,
+          timestamp,
+        );
+      }
     },
   },
 ];

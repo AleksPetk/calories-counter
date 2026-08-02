@@ -3,11 +3,11 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Platform, StyleSheet } from 'react-native';
 
 import { TAB_LABELS } from '../constants';
-import { HistoryScreen } from '../screens/HistoryScreen';
-import { SettingsScreen } from '../screens/SettingsScreen';
 import { useTheme } from '../theme/ThemeProvider';
+import { HistoryNavigator } from './HistoryNavigator';
 import { HomeNavigator } from './HomeNavigator';
 import { LibraryNavigator } from './LibraryNavigator';
+import { SettingsNavigator } from './SettingsNavigator';
 import { RootTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -79,12 +79,12 @@ export function RootNavigator() {
       />
       <Tab.Screen
         name="History"
-        component={HistoryScreen}
+        component={HistoryNavigator}
         options={{ title: TAB_LABELS.history }}
       />
       <Tab.Screen
         name="Settings"
-        component={SettingsScreen}
+        component={SettingsNavigator}
         options={{ title: TAB_LABELS.settings }}
       />
     </Tab.Navigator>

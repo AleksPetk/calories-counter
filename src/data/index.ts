@@ -4,6 +4,7 @@ import { openDatabase } from './database/openDatabase';
 import {
   DailyLogEntryRepository,
   DataRepositories,
+  EntitlementRepository,
   LibraryItemRepository,
   ProfileRepository,
   SettingsRepository,
@@ -22,6 +23,7 @@ function createRepositories(db: SQLiteDatabase): DataRepositories {
     dailyLogEntries: new DailyLogEntryRepository(db),
     profile: new ProfileRepository(db),
     settings: new SettingsRepository(db),
+    entitlement: new EntitlementRepository(db),
   };
 }
 
@@ -49,6 +51,7 @@ export async function initDatabase(): Promise<{
 export { openDatabase } from './database/openDatabase';
 export {
   DEFAULT_DAILY_GOAL,
+  DEFAULT_HISTORY_RETENTION_DAYS,
   DEFAULT_RESET_TIME,
   SCHEMA_VERSION,
 } from './database/constants';

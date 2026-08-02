@@ -13,6 +13,7 @@ import {
 import { Screen } from '../components/Screen';
 import { DEFAULT_RESET_TIME } from '../constants';
 import { useData } from '../data/DataProvider';
+import { useEntitlement } from '../entitlement';
 import { getActiveDayKey } from '../data/logging/activeDay';
 import { undoLastLogForActiveDay } from '../data/logging/loggingService';
 import { HomeStackParamList } from '../navigation/types';
@@ -56,6 +57,7 @@ export function TodaysLogScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
   const { repositories, revision, refresh, settings } = useData();
+  const { requireWriteAccess } = useEntitlement();
   const [entries, setEntries] = useState<DailyLogEntry[]>([]);
 
   const styles = useMemo(
@@ -140,6 +142,9 @@ export function TodaysLogScreen() {
   }, [load]);
 
   const onDelete = (entry: DailyLogEntry) => {
+    if (!requireWriteAccess()) {
+      return;
+    }
     Alert.alert('Delete entry?', entry.foodNameSnapshot, [
       { text: 'Cancel', style: 'cancel' },
       {
@@ -157,6 +162,9 @@ export function TodaysLogScreen() {
   };
 
   const onUndo = async () => {
+    if (!requireWriteAccess()) {
+      return;
+    }
     if (!repositories) {
       return;
     }
@@ -206,9 +214,12 @@ export function TodaysLogScreen() {
               {macros ? <Text style={styles.meta}>{macros}</Text> : null}
               <View style={styles.actions}>
                 <Pressable
-                  onPress={() =>
-                    navigation.navigate('LogEntryEditor', { entryId: entry.id })
-                  }
+                  onPress={() => {
+                    if (!requireWriteAccess()) {
+                      return;
+                    }
+                    navigation.navigate('LogEntryEditor', { entryId: entry.id });
+                  }}
                 >
                   <Text style={styles.action}>Edit</Text>
                 </Pressable>

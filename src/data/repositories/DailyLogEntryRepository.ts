@@ -102,4 +102,31 @@ export class DailyLogEntryRepository {
   async delete(id: string): Promise<void> {
     await this.db.runAsync(`DELETE FROM daily_log_entries WHERE id = ?`, id);
   }
+
+  /** Deletes every log entry (Clear History / Erase All). */
+  async deleteAll(): Promise<void> {
+    await this.db.runAsync(`DELETE FROM daily_log_entries`);
+  }
+
+  /**
+   * Deletes entries with logical `date` strictly before `oldestKeepDate`
+   * (`YYYY-MM-DD`). Used by history retention cleanup.
+   */
+  async deleteOlderThan(oldestKeepDate: string): Promise<void> {
+    await this.db.runAsync(
+      `DELETE FROM daily_log_entries WHERE date < ?`,
+      oldestKeepDate,
+    );
+  }
+
+  /**
+   * Deletes entries whose source_id starts with the given prefix.
+   * Used to remove tutorial-temp log rows without touching user history.
+   */
+  async deleteBySourceIdPrefix(prefix: string): Promise<void> {
+    await this.db.runAsync(
+      `DELETE FROM daily_log_entries WHERE source_id IS NOT NULL AND source_id LIKE ?`,
+      `${prefix}%`,
+    );
+  }
 }

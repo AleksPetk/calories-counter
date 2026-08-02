@@ -9,8 +9,10 @@ import {
 } from 'react';
 
 import type { Settings } from '../types';
+import { applyHistoryRetention } from './history/historyRetention';
 import { initDatabase, type DataRepositories } from './index';
 import { seedDevLibraryIfEmpty } from './seed/seedDevData';
+import { cleanupTutorialArtifacts } from '../tutorial/cleanup';
 
 type DataContextValue = {
   ready: boolean;
@@ -23,6 +25,9 @@ type DataContextValue = {
   /** @deprecated Prefer `refresh`. */
   refreshLibrary: () => void;
   reloadSettings: () => Promise<void>;
+  /** Force-show tutorial without clearing user data. */
+  requestTutorialReplay: () => void;
+  tutorialReplayToken: number;
 };
 
 const DataContext = createContext<DataContextValue | null>(null);
@@ -35,6 +40,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   );
   const [settings, setSettings] = useState<Settings | null>(null);
   const [revision, setRevision] = useState(0);
+  const [tutorialReplayToken, setTutorialReplayToken] = useState(0);
 
   const reloadSettings = useCallback(async () => {
     if (!repositories) {
@@ -43,6 +49,10 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const next = await repositories.settings.get();
     setSettings(next);
   }, [repositories]);
+
+  const requestTutorialReplay = useCallback(() => {
+    setTutorialReplayToken((value) => value + 1);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -54,6 +64,8 @@ export function DataProvider({ children }: { children: ReactNode }) {
           await seedDevLibraryIfEmpty(repos);
         }
         const nextSettings = await repos.settings.get();
+        await applyHistoryRetention(repos, nextSettings);
+        await cleanupTutorialArtifacts(repos);
         if (!cancelled) {
           setRepositories(repos);
           setSettings(nextSettings);
@@ -86,8 +98,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
       refresh,
       refreshLibrary: refresh,
       reloadSettings,
+      requestTutorialReplay,
+      tutorialReplayToken,
     }),
-    [ready, error, repositories, settings, revision, refresh, reloadSettings],
+    [
+      ready,
+      error,
+      repositories,
+      settings,
+      revision,
+      refresh,
+      reloadSettings,
+      requestTutorialReplay,
+      tutorialReplayToken,
+    ],
   );
 
   return <DataContext.Provider value={value}>{children}</DataContext.Provider>;

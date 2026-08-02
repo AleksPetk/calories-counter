@@ -167,31 +167,33 @@ Features that fight the philosophy (large search DBs, social, ads, subscription 
 - Compact Home calorie card and 3-column pin grid
 - Keyboard-aware Food/Meal editors
 
-### Stage 6 — Logging Core — In progress
+### Stage 6 — Logging Core — Done
 
 - One-tap Quick Log items + Portion popup logging
 - Unified `library_items` model (schema v3 migration)
 - Today’s log, edit/delete, undo
 - QuickCal branding config
 
+### Stage 7 — History, Settings, and Tutorial — In progress
+
+- Browse previous days; edit/delete past entries; daily totals
+- Daily goal, reset time, history retention
+- Clear History vs Erase All Data (purchase entitlement preserved)
+- Local profile + photo
+- First-launch / replay tutorial
+- App Information
+
 Do not mark complete until device verification.
 
-### Stage 7 — History, Settings, and Tutorial
+### Stage 8 — Trial and One-Time Purchase — In progress
 
-- Browse previous days
-- Edit past entries
-- Daily totals
-- Daily goal
-- Editable reset time
-- Replay tutorial (must mention themes are changeable in Settings)
-- App information
+- App-managed 14-day trial (`entitlement` table, separate from settings)
+- Soft gate after expiry (browse OK; writes → paywall)
+- `expo-iap` lifetime unlock + restore (dev/store builds)
+- Local entitlement cache; Erase All preserves trial + store purchase
+- `__DEV__` entitlement test panel
 
-### Stage 8 — Trial and One-Time Purchase
-
-- Trial state
-- Apple and Google purchase handling
-- Restore purchase
-- Purchase status
+Do not mark complete until device + sandbox verification.
 
 ### Stage 9 — Long Polish Phase
 
@@ -216,23 +218,28 @@ Stack: React Native + Expo (TypeScript), React Navigation (not Expo Router).
 ### Current app structure
 
 ```
-App.tsx                 # SafeAreaProvider + DataProvider + ThemeProvider + Navigation
+App.tsx                 # SafeAreaProvider + Data + Theme + Entitlement + Navigation + Tutorial
 src/
-  navigation/           # Bottom tabs + Library stack
-  screens/              # Home, Library (+ editors), History, Settings
-  components/           # Shared UI
-  constants/            # Static labels/defaults
+  navigation/           # Root stack (Main tabs + Paywall modal) + tab stacks
+  screens/              # Home, Library, History, Settings, Paywall (+ editors)
+  entitlement/          # Trial/purchase access model + provider
+  iap/                  # expo-iap adapter (store builds)
+  config/               # App brand + centralized store product IDs
+  components/           # Shared UI (incl. ThemePicker)
+  constants/            # Static labels/defaults (incl. retention options)
   theme/                # Theme registry, provider, layout tokens, themes/*
   config/               # App brand (QuickCal) identity
   types/                # Domain TypeScript models
   data/
     database/           # open, schema, migrate, mappers
-    repositories/       # Food, Meal, MealItem, DailyLogEntry, Profile, Settings
-    images/             # Persist/delete library photos in documentDirectory
-    library/            # Meal nutrition + pin-limit helpers
+    repositories/       # LibraryItem, DailyLogEntry, Profile, Settings
+    images/             # Persist/delete library + profile photos
+    library/            # Pin-limit helpers
     logging/            # Active day, totals, log create/undo helpers
+    history/            # Retention purge helpers
+    erase/              # Erase All Data (preserves purchase_state)
     seed/               # Dev-only seed catalog (gated by __DEV__)
-    DataProvider.tsx    # DB init, optional seed, refresh signal
+    DataProvider.tsx    # DB init, seed, retention cleanup, refresh signal
 ```
 
 ### SQLite schema (Stage 4)

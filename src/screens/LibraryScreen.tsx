@@ -16,9 +16,11 @@ import { LibraryItemCard } from '../components/LibraryItemCard';
 import { Screen } from '../components/Screen';
 import { SearchField } from '../components/SearchField';
 import { useData } from '../data/DataProvider';
+import { useEntitlement } from '../entitlement';
 import { deletePersistedLibraryImage } from '../data/images/libraryImages';
 import { canPinAnotherItem } from '../data/library/pinLimit';
 import { LibraryStackParamList } from '../navigation/types';
+import { TutorialAnchor, useTutorialOptional } from '../tutorial';
 import type { LibraryListItem } from '../types';
 import { radii } from '../theme/radii';
 import { spacing } from '../theme/spacing';
@@ -31,9 +33,11 @@ function matchesQuery(name: string, query: string) {
 
 export function LibraryScreen() {
   const theme = useTheme();
+  const tutorial = useTutorialOptional();
   const navigation =
     useNavigation<NativeStackNavigationProp<LibraryStackParamList>>();
   const { repositories, ready, revision, refresh } = useData();
+  const { requireWriteAccess } = useEntitlement();
   const [search, setSearch] = useState('');
   const [items, setItems] = useState<LibraryListItem[]>([]);
 
@@ -105,6 +109,9 @@ export function LibraryScreen() {
     : items.filter((item) => matchesQuery(item.name, search));
 
   const togglePin = async (item: LibraryListItem) => {
+    if (!requireWriteAccess()) {
+      return;
+    }
     if (!repositories) {
       return;
     }
@@ -120,6 +127,9 @@ export function LibraryScreen() {
   };
 
   const confirmDelete = (item: LibraryListItem) => {
+    if (!requireWriteAccess()) {
+      return;
+    }
     Alert.alert('Delete item?', item.name, [
       { text: 'Cancel', style: 'cancel' },
       {
@@ -142,21 +152,32 @@ export function LibraryScreen() {
     <Screen>
       <View style={styles.header}>
         <Text style={styles.title}>Library</Text>
-        <Pressable
-          onPress={() => navigation.navigate('LibraryItemEditor', {})}
-          style={({ pressed }) => [styles.addButton, pressed && styles.addPressed]}
-          accessibilityRole="button"
-          accessibilityLabel="Add item"
-        >
-          <LinearGradient
-            colors={[...theme.gradients.buttonAccent]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.addGradient}
+        <TutorialAnchor id="library.add">
+          <Pressable
+            onPress={() => {
+              if (!requireWriteAccess()) {
+                return;
+              }
+              tutorial?.notifyAction('opened-add-item');
+              navigation.navigate('LibraryItemEditor', {});
+            }}
+            style={({ pressed }) => [
+              styles.addButton,
+              pressed && styles.addPressed,
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Add item"
           >
-            <Ionicons name="add" size={26} color={theme.textOnAccent} />
-          </LinearGradient>
-        </Pressable>
+            <LinearGradient
+              colors={[...theme.gradients.buttonAccent]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.addGradient}
+            >
+              <Ionicons name="add" size={26} color={theme.textOnAccent} />
+            </LinearGradient>
+          </Pressable>
+        </TutorialAnchor>
       </View>
 
       <SearchField
@@ -165,28 +186,30 @@ export function LibraryScreen() {
         placeholder="Search library"
       />
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.list}
-        keyboardShouldPersistTaps="handled"
-      >
-        {!ready ? <Text style={styles.empty}>Loading…</Text> : null}
-        {ready &&
-          visible.map((item) => (
-            <LibraryItemCard
-              key={item.id}
-              item={item}
-              onPress={() =>
-                navigation.navigate('LibraryItemEditor', { itemId: item.id })
-              }
-              onPressPin={() => togglePin(item)}
-              onLongPress={() => confirmDelete(item)}
-            />
-          ))}
-        {ready && visible.length === 0 ? (
-          <Text style={styles.empty}>No items yet</Text>
-        ) : null}
-      </ScrollView>
+      <TutorialAnchor id="library.pin" style={{ alignSelf: 'stretch', flex: 1 }}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.list}
+          keyboardShouldPersistTaps="handled"
+        >
+          {!ready ? <Text style={styles.empty}>Loading…</Text> : null}
+          {ready &&
+            visible.map((item) => (
+              <LibraryItemCard
+                key={item.id}
+                item={item}
+                onPress={() =>
+                  navigation.navigate('LibraryItemEditor', { itemId: item.id })
+                }
+                onPressPin={() => togglePin(item)}
+                onLongPress={() => confirmDelete(item)}
+              />
+            ))}
+          {ready && visible.length === 0 ? (
+            <Text style={styles.empty}>No items yet</Text>
+          ) : null}
+        </ScrollView>
+      </TutorialAnchor>
     </Screen>
   );
 }

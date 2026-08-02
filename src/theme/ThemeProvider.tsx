@@ -25,22 +25,29 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const { repositories, ready } = useData();
+  const { repositories, ready, settings } = useData();
   const [themeId, setThemeIdState] = useState<ThemeId>(DEFAULT_THEME_ID);
 
   useEffect(() => {
-    if (!ready || !repositories) {
+    if (!ready) {
+      return;
+    }
+    if (settings?.themeId) {
+      setThemeIdState(resolveTheme(settings.themeId).id);
+      return;
+    }
+    if (!repositories) {
       return;
     }
     repositories.settings
       .get()
-      .then((settings) => {
-        setThemeIdState(resolveTheme(settings.themeId).id);
+      .then((row) => {
+        setThemeIdState(resolveTheme(row.themeId).id);
       })
       .catch((error) => {
         console.error('Failed to load theme setting', error);
       });
-  }, [ready, repositories]);
+  }, [ready, repositories, settings?.themeId]);
 
   const setThemeId = useCallback(
     async (id: ThemeId) => {

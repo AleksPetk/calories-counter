@@ -102,3 +102,24 @@ CREATE TABLE IF NOT EXISTS library_items (
   updated_at TEXT NOT NULL
 );
 `;
+
+/**
+ * Entitlement row — separate from settings.
+ * Survives Erase All Data (trial timestamps + store purchase cache).
+ */
+export const ENTITLEMENT_SQL = `
+CREATE TABLE IF NOT EXISTS entitlement (
+  id INTEGER PRIMARY KEY NOT NULL CHECK (id = 1),
+  trial_started_at TEXT,
+  trial_expires_at TEXT,
+  store_purchased INTEGER NOT NULL DEFAULT 0
+    CHECK (store_purchased IN (0, 1)),
+  store_product_id TEXT,
+  store_platform TEXT,
+  store_purchased_at TEXT,
+  last_store_check_at TEXT,
+  simulated_purchased INTEGER NOT NULL DEFAULT 0
+    CHECK (simulated_purchased IN (0, 1)),
+  updated_at TEXT NOT NULL
+);
+`;

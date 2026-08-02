@@ -7,9 +7,11 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.alekspetk.quickcal"
     },
     "android": {
+      "package": "com.alekspetk.quickcal",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -28,7 +30,9 @@
         {
           "photosPermission": "Allow QuickCal to attach photos to foods and meals."
         }
-      ]
+      ],
+      "expo-iap",
+      "expo-dev-client"
     ]
   }
 }

@@ -31,6 +31,7 @@ import {
   PIN_SLOT_COUNT,
 } from '../constants';
 import { useData } from '../data/DataProvider';
+import { useEntitlement } from '../entitlement';
 import { getActiveDayKey } from '../data/logging/activeDay';
 import {
   normalizeLoggingMode,
@@ -50,6 +51,7 @@ import {
 } from '../data/logging/loggingService';
 import { HomeStackParamList } from '../navigation/types';
 import type { LibraryItem, LibraryListItem } from '../types';
+import { TutorialAnchor, useTutorialOptional } from '../tutorial';
 import { radii } from '../theme/radii';
 import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
@@ -68,9 +70,11 @@ function matchesQuery(name: string, query: string) {
 
 export function HomeScreen() {
   const theme = useTheme();
+  const tutorial = useTutorialOptional();
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
   const { repositories, ready, revision, refresh, settings } = useData();
+  const { requireWriteAccess } = useEntitlement();
   const [calories, setCalories] = useState('');
   const [expanded, setExpanded] = useState(false);
   const [foodName, setFoodName] = useState('');
@@ -279,6 +283,9 @@ export function HomeScreen() {
   };
 
   const onQuickLog = () => {
+    if (!requireWriteAccess()) {
+      return;
+    }
     void withLogLock(async () => {
       if (!repositories) {
         return;
@@ -306,10 +313,14 @@ export function HomeScreen() {
       clearQuickForm();
       refresh();
       showToast('Logged');
+      tutorial?.notifyAction('logged-library-item');
     });
   };
 
   const onLibraryItem = (listItem: LibraryListItem) => {
+    if (!requireWriteAccess()) {
+      return;
+    }
     const item = itemsById[listItem.id];
     if (!item) {
       Alert.alert('Missing item', 'That item is no longer in your library.');
@@ -332,6 +343,7 @@ export function HomeScreen() {
         Keyboard.dismiss();
         refresh();
         showToast(item.name);
+        tutorial?.notifyAction('logged-library-item');
       });
       return;
     }
@@ -342,6 +354,9 @@ export function HomeScreen() {
   };
 
   const onPortionConfirm = (portion: number) => {
+    if (!requireWriteAccess()) {
+      return;
+    }
     void withLogLock(async () => {
       if (!repositories || !portionItem) {
         return;
@@ -354,10 +369,14 @@ export function HomeScreen() {
       setPortionItem(null);
       refresh();
       showToast(`${name} × ${portion}`);
+      tutorial?.notifyAction('logged-library-item');
     });
   };
 
   const onUndo = () => {
+    if (!requireWriteAccess()) {
+      return;
+    }
     void withLogLock(async () => {
       if (!repositories) {
         return;
@@ -388,18 +407,19 @@ export function HomeScreen() {
       <FormKeyboardScroll>
         <AppBrandHeader />
 
-        <RemainingCaloriesCard
-          summary={{
-            displayAmount: daySummary.isUnderOrAtGoal
-              ? daySummary.remaining
-              : daySummary.exceeded,
-            goal: daySummary.goal,
-            isUnderOrAtGoal: daySummary.isUnderOrAtGoal,
-            consumed: daySummary.consumed,
-          }}
-          onPress={() => navigation.navigate('TodaysLog')}
-        />
-
+        <TutorialAnchor id="home.calorie-card" style={{ alignSelf: 'stretch' }}>
+          <RemainingCaloriesCard
+            summary={{
+              displayAmount: daySummary.isUnderOrAtGoal
+                ? daySummary.remaining
+                : daySummary.exceeded,
+              goal: daySummary.goal,
+              isUnderOrAtGoal: daySummary.isUnderOrAtGoal,
+              consumed: daySummary.consumed,
+            }}
+            onPress={() => navigation.navigate('TodaysLog')}
+          />
+        </TutorialAnchor>
         <View style={styles.quickEntry}>
           <View style={styles.quickRow}>
             <FormTextInput
@@ -474,7 +494,9 @@ export function HomeScreen() {
         {ready && pins.length === 0 ? (
           <Text style={styles.emptyPins}>Pin items from Library</Text>
         ) : (
-          <PinGrid items={pins} onPressItem={onLibraryItem} />
+          <TutorialAnchor id="home.pins" style={{ alignSelf: 'stretch' }}>
+            <PinGrid items={pins} onPressItem={onLibraryItem} />
+          </TutorialAnchor>
         )}
 
         <View style={styles.searchBlock}>

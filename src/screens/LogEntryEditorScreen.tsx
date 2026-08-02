@@ -9,23 +9,30 @@ import {
 import { PrimaryButton } from '../components/PrimaryButton';
 import { Screen } from '../components/Screen';
 import { useData } from '../data/DataProvider';
+import { useEntitlement } from '../entitlement';
 import {
   parseOptionalMacroGrams,
   parsePositiveCalories,
   parsePositivePortion,
 } from '../data/logging/logMath';
-import { HomeStackParamList } from '../navigation/types';
+import type {
+  HistoryStackParamList,
+  HomeStackParamList,
+} from '../navigation/types';
 import { radii } from '../theme/radii';
 import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
 import { useTheme } from '../theme/ThemeProvider';
 
-type Props = NativeStackScreenProps<HomeStackParamList, 'LogEntryEditor'>;
+type Props =
+  | NativeStackScreenProps<HomeStackParamList, 'LogEntryEditor'>
+  | NativeStackScreenProps<HistoryStackParamList, 'LogEntryEditor'>;
 
 export function LogEntryEditorScreen({ navigation, route }: Props) {
   const theme = useTheme();
   const { entryId } = route.params;
   const { repositories, refresh } = useData();
+  const { requireWriteAccess } = useEntitlement();
   const [name, setName] = useState('');
   const [calories, setCalories] = useState('');
   const [protein, setProtein] = useState('');
@@ -87,6 +94,9 @@ export function LogEntryEditorScreen({ navigation, route }: Props) {
   }, [repositories, entryId, navigation]);
 
   const onSave = async () => {
+    if (!requireWriteAccess()) {
+      return;
+    }
     if (!repositories) {
       return;
     }

@@ -7,14 +7,9 @@ import {
 } from 'expo-file-system/legacy';
 
 import { createId } from '../database/utils';
+import { optimizeLocalImage } from './optimizeLocalImage';
 
 const LIBRARY_IMAGES_DIR = `${documentDirectory ?? ''}library-images/`;
-
-function extensionFromUri(uri: string): string {
-  const cleaned = uri.split('?')[0] ?? uri;
-  const match = cleaned.match(/\.([a-zA-Z0-9]+)$/);
-  return match?.[1]?.toLowerCase() ?? 'jpg';
-}
 
 async function ensureLibraryImagesDir(): Promise<void> {
   if (!documentDirectory) {
@@ -27,14 +22,14 @@ async function ensureLibraryImagesDir(): Promise<void> {
 }
 
 /**
- * Copies a picker/temp URI into the app document directory.
- * Returns the permanent file URI to store in SQLite.
+ * Optimizes then copies into permanent library storage.
+ * Throws on failure — caller must not update UI/DB with a broken URI.
  */
 export async function persistLibraryImage(tempUri: string): Promise<string> {
+  const optimized = await optimizeLocalImage(tempUri);
   await ensureLibraryImagesDir();
-  const ext = extensionFromUri(tempUri);
-  const destination = `${LIBRARY_IMAGES_DIR}${createId()}.${ext}`;
-  await copyAsync({ from: tempUri, to: destination });
+  const destination = `${LIBRARY_IMAGES_DIR}${createId()}.jpg`;
+  await copyAsync({ from: optimized.uri, to: destination });
   return destination;
 }
 
@@ -62,7 +57,8 @@ export async function deletePersistedLibraryImage(
 }
 
 /**
- * Replaces an existing persisted image: persist the new file, then remove the old one.
+ * Persist a new optimized image, then remove the previous managed file.
+ * If optimization/copy fails, previousUri is left untouched and the error propagates.
  */
 export async function replacePersistedLibraryImage(
   previousUri: string | null | undefined,
@@ -73,4 +69,10 @@ export async function replacePersistedLibraryImage(
     await deletePersistedLibraryImage(previousUri);
   }
   return permanentUri;
+}
+
+export function isManagedLibraryImage(uri: string | null | undefined): boolean {
+  return Boolean(
+    uri && documentDirectory && uri.startsWith(LIBRARY_IMAGES_DIR),
+  );
 }
