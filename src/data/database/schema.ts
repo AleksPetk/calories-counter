@@ -1,0 +1,85 @@
+/**
+ * Initial schema (version 1).
+ *
+ * Portion is stored as REAL; unit semantics are deferred.
+ * Image fields store local filesystem paths, not bundled assets.
+ * Profile and Settings are single-row tables (id = 1).
+ */
+export const SCHEMA_V1_SQL = `
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE IF NOT EXISTS foods (
+  id TEXT PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL,
+  calories REAL NOT NULL,
+  protein REAL,
+  carbs REAL,
+  fat REAL,
+  image TEXT,
+  pinned INTEGER NOT NULL DEFAULT 0 CHECK (pinned IN (0, 1)),
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS meals (
+  id TEXT PRIMARY KEY NOT NULL,
+  name TEXT NOT NULL,
+  image TEXT,
+  pinned INTEGER NOT NULL DEFAULT 0 CHECK (pinned IN (0, 1)),
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS meal_items (
+  id TEXT PRIMARY KEY NOT NULL,
+  meal_id TEXT NOT NULL,
+  food_id TEXT NOT NULL,
+  portion REAL NOT NULL,
+  sort_order INTEGER NOT NULL,
+  FOREIGN KEY (meal_id) REFERENCES meals(id) ON DELETE CASCADE,
+  FOREIGN KEY (food_id) REFERENCES foods(id) ON DELETE RESTRICT
+);
+
+CREATE INDEX IF NOT EXISTS idx_meal_items_meal_id ON meal_items(meal_id);
+CREATE INDEX IF NOT EXISTS idx_meal_items_food_id ON meal_items(food_id);
+
+CREATE TABLE IF NOT EXISTS daily_log_entries (
+  id TEXT PRIMARY KEY NOT NULL,
+  date TEXT NOT NULL,
+  time TEXT NOT NULL,
+  source_type TEXT NOT NULL CHECK (source_type IN ('food', 'meal', 'quick')),
+  source_id TEXT,
+  calories REAL NOT NULL,
+  protein REAL,
+  carbs REAL,
+  fat REAL,
+  food_name_snapshot TEXT NOT NULL,
+  portion REAL
+);
+
+CREATE INDEX IF NOT EXISTS idx_daily_log_entries_date ON daily_log_entries(date);
+
+CREATE TABLE IF NOT EXISTS profile (
+  id INTEGER PRIMARY KEY NOT NULL CHECK (id = 1),
+  nickname TEXT,
+  photo TEXT,
+  age INTEGER,
+  sex TEXT NOT NULL DEFAULT 'unspecified',
+  height REAL,
+  weight REAL,
+  activity_level TEXT NOT NULL DEFAULT 'unspecified',
+  goal TEXT NOT NULL DEFAULT 'unspecified',
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS settings (
+  id INTEGER PRIMARY KEY NOT NULL CHECK (id = 1),
+  daily_goal REAL NOT NULL,
+  reset_time TEXT NOT NULL,
+  history_retention INTEGER,
+  tutorial_seen INTEGER NOT NULL DEFAULT 0 CHECK (tutorial_seen IN (0, 1)),
+  purchase_state TEXT NOT NULL DEFAULT 'trial'
+    CHECK (purchase_state IN ('trial', 'purchased', 'locked')),
+  updated_at TEXT NOT NULL
+);
+`;

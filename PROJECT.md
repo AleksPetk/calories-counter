@@ -137,27 +137,20 @@ Features that fight the philosophy (large search DBs, social, ads, subscription 
 - No database, state management, or business logic
 - Shared `types` deferred until real domain types exist
 
-### Stage 3 — UI Skeleton — Current
+### Stage 3 — UI Skeleton — Done
 
 - Screen layouts and shared UI structure for Home, Library, History, and Settings
 - Remaining calorie bar, quick calorie entry, and expandable optional name/macros as UI only
-- Temporary/mock data only for display and navigation
-- No business logic
-- No persistence or database
+- Visual design direction (Stage 3.1)
+- No business logic wired to persistence
 
-### Decisions required before Stage 4 (Database)
+### Stage 4 — Local Database — Current
 
-- Portion model
-- Macros in MVP
-- Day reset behavior
-- Identifier strategy
-
-### Stage 4 — Local Database
-
-- SQLite setup
-- Data models
+- SQLite setup via `expo-sqlite`
+- Typed domain models
 - Repository/storage layer
-- Migration strategy
+- Migration strategy (`PRAGMA user_version`)
+- DB initialized on app launch; UI not yet reading/writing repositories
 
 ### Stage 5 — Food Library
 
@@ -212,17 +205,44 @@ Features that fight the philosophy (large search DBs, social, ads, subscription 
 
 Stack: React Native + Expo (TypeScript), React Navigation (not Expo Router).
 
-### Current app structure (Stage 2)
+### Current app structure
 
 ```
-App.tsx                 # SafeAreaProvider + NavigationContainer
+App.tsx                 # SafeAreaProvider + NavigationContainer + initDatabase()
 src/
   navigation/           # Bottom tab shell
-  screens/              # Home, Library, History, Settings (empty shells)
-  components/           # Shared UI (Screen wrapper)
-  constants/            # Static labels/values in use
-  theme/                # colors, spacing, typography
+  screens/              # Home, Library, History, Settings (UI shell)
+  components/           # Shared UI
+  constants/            # Static labels/defaults
+  theme/                # colors, spacing, typography, radii, shadows
+  types/                # Domain TypeScript models
+  data/
+    database/           # open, schema, migrate, mappers
+    repositories/       # Food, Meal, MealItem, DailyLogEntry, Profile, Settings
 ```
+
+### SQLite schema (Stage 4)
+
+| Table | Purpose |
+|-------|---------|
+| `foods` | User food library items |
+| `meals` | Named meal compositions |
+| `meal_items` | Meal ↔ food portions + order |
+| `daily_log_entries` | Per-day logged intake snapshots |
+| `profile` | Single-row user profile |
+| `settings` | Single-row app settings |
+
+Relationships:
+- `meal_items.meal_id` → `meals.id` (CASCADE delete)
+- `meal_items.food_id` → `foods.id` (RESTRICT delete)
+- `daily_log_entries.source_id` references a food/meal id when `source_type` is food/meal (nullable for quick logs; not enforced as FK so history survives library deletes)
+
+Schema defaults chosen for open product questions:
+- IDs: TEXT UUIDs
+- Portion: REAL (unit deferred)
+- Macros: nullable REAL
+- Images: local filesystem path TEXT
+- `settings.history_retention`: NULL = unlimited
 
 Logical layers for later stages:
 
@@ -273,7 +293,7 @@ Optional (purchase only):
 
 - **UI framework:** React Native + Expo (TypeScript) — decided
 - **Navigation:** React Navigation bottom tabs — decided
-- **Local DB:** SQLite flavor / library — Stage 3 decision
+- **Local DB:** SQLite via `expo-sqlite` — decided (Stage 4)
 
 ---
 
@@ -301,11 +321,11 @@ Optional (purchase only):
 ### Technical
 
 14. ~~**Framework?**~~ Resolved: React Native + Expo (TypeScript).
-15. **Persistence?** SQLite flavor / ORM.
+15. ~~**Persistence?**~~ Resolved: SQLite via `expo-sqlite` + repository layer.
 16. **IAP approach?** RevenueCat vs StoreKit/Play Billing direct.
 17. **Trial implementation?** Store free trial of non-consumable vs app-managed first-launch timer (implications for reinstall abuse).
-18. **Identifiers?** Offline-only UUID strategy for foods/meals/entries.
-19. **Migration policy?** How schema changes ship after 1.0.
+18. ~~**Identifiers?**~~ Resolved for v1 schema: TEXT UUIDs (`crypto.randomUUID` when available).
+19. **Migration policy?** How schema changes ship after 1.0 beyond `PRAGMA user_version` migrations.
 20. **Testing bar for MVP?** Unit-only vs + a few integration/UI tests.
 
 ### Legal / store
@@ -328,8 +348,8 @@ Optional (purchase only):
 
 ## Document control
 
-| Field   | Value                          |
-|---------|--------------------------------|
-| Status  | Stage 2 architecture complete |
-| Created | 2026-08-01                     |
-| Code    | Expo app + navigation shell    |
+| Field   | Value                                      |
+|---------|--------------------------------------------|
+| Status  | Stage 4 database layer implemented         |
+| Created | 2026-08-01                                 |
+| Code    | Expo app + UI shell + SQLite data layer    |

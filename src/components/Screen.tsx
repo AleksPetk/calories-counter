@@ -8,12 +8,15 @@ import { spacing } from '../theme/spacing';
 type ScreenProps = {
   children: ReactNode;
   style?: ViewStyle;
+  padded?: boolean;
 };
 
-export function Screen({ children, style }: ScreenProps) {
+export function Screen({ children, style, padded = true }: ScreenProps) {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-      <View style={[styles.content, style]}>{children}</View>
+      <View style={[padded ? styles.content : styles.contentFlush, style]}>
+        {children}
+      </View>
     </SafeAreaView>
   );
 }
@@ -25,7 +28,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.lg,
+    paddingHorizontal: spacing.lg - 2,
+    paddingTop: spacing.md,
+  },
+  contentFlush: {
+    flex: 1,
   },
 });
