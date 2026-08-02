@@ -1,22 +1,17 @@
-import { ReactNode, useMemo } from 'react';
-import { StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { useMemo } from 'react';
+import { StyleSheet, View, ViewStyle } from 'react-native';
 
-import { appBrand } from '../config/appBrand';
-import { typography } from '../theme/typography';
-import { useTheme } from '../theme/ThemeProvider';
+import { AppBrandLogo } from './AppBrandLogo';
 import { spacing } from '../theme/spacing';
 
 type AppBrandHeaderProps = {
-  /** Optional slot for a future AppLogo — replaces text when provided. */
-  logo?: ReactNode;
   style?: ViewStyle;
 };
 
 /**
- * Home header brand mark. Swap `logo` later without redesigning Home layout.
+ * Home header brand mark.
  */
-export function AppBrandHeader({ logo, style }: AppBrandHeaderProps) {
-  const theme = useTheme();
+export function AppBrandHeader({ style }: AppBrandHeaderProps) {
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -25,17 +20,13 @@ export function AppBrandHeader({ logo, style }: AppBrandHeaderProps) {
           minHeight: 34,
           justifyContent: 'center',
         },
-        title: {
-          ...typography.appTitle,
-          color: theme.textPrimary,
-        },
       }),
-    [theme],
+    [],
   );
 
   return (
     <View style={[styles.wrap, style]} accessibilityRole="header">
-      {logo ?? <Text style={styles.title}>{appBrand.appName}</Text>}
+      <AppBrandLogo variant="wordmark" height={28} />
     </View>
   );
 }

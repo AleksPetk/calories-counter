@@ -6,6 +6,11 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/brand-logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A120C"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.alekspetk.quickcal"
@@ -13,9 +18,8 @@
     "android": {
       "package": "com.alekspetk.quickcal",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
+        "backgroundColor": "#0A120C",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false

@@ -11,6 +11,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '../components/PrimaryButton';
+import { AppBrandLogo } from '../components/AppBrandLogo';
 import { radii } from '../theme/radii';
 import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
@@ -147,6 +148,9 @@ export function SpotlightOverlay({
           color: theme.textMuted,
           marginBottom: spacing.xs,
         },
+        logoWrap: {
+          marginBottom: spacing.sm,
+        },
         title: {
           ...typography.section,
           color: theme.textPrimary,
@@ -263,9 +267,10 @@ export function SpotlightOverlay({
 
   const actionsReserve = 118;
   const headerReserve = 52;
+  const showBrandLogo = step.id === 'welcome' || step.id === 'finish';
   const bodyMaxHeight = Math.max(
     40,
-    tooltipMaxHeight - actionsReserve - headerReserve,
+    tooltipMaxHeight - actionsReserve - headerReserve - (showBrandLogo ? 40 : 0),
   );
 
   const clampedTop = Math.min(
@@ -311,6 +316,11 @@ export function SpotlightOverlay({
         <Text style={styles.progress}>
           {stepIndex + 1} / {stepCount}
         </Text>
+        {showBrandLogo ? (
+          <View style={styles.logoWrap}>
+            <AppBrandLogo variant="wordmark" height={24} />
+          </View>
+        ) : null}
         <Text style={styles.title}>{step.title}</Text>
         <ScrollView
           style={[styles.scroll, { maxHeight: bodyMaxHeight }]}

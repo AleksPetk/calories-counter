@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Alert, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { AppBrandLogo } from '../../components/AppBrandLogo';
 import { Screen } from '../../components/Screen';
 import { appBrand, isLegalUrlConfigured } from '../../config/appBrand';
 import { radii } from '../../theme/radii';
@@ -20,6 +21,9 @@ export function AppInformationScreen() {
           borderWidth: StyleSheet.hairlineWidth,
           borderColor: theme.border,
           ...theme.softShadow,
+        },
+        logoWrap: {
+          marginBottom: spacing.md,
         },
         name: {
           ...typography.title,
@@ -76,6 +80,9 @@ export function AppInformationScreen() {
   return (
     <Screen>
       <View style={styles.card}>
+        <View style={styles.logoWrap}>
+          <AppBrandLogo variant="wordmark" height={30} />
+        </View>
         <Text style={styles.name}>{appBrand.appName}</Text>
         <Text style={styles.subtitle}>{appBrand.appSubtitle}</Text>
         <Text style={styles.version}>Version {appBrand.version}</Text>

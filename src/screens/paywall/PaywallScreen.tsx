@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import { PrimaryButton } from '../../components/PrimaryButton';
+import { AppBrandLogo } from '../../components/AppBrandLogo';
 import { Screen } from '../../components/Screen';
 import { appBrand, isLegalUrlConfigured } from '../../config/appBrand';
 import { useEntitlement } from '../../entitlement';
@@ -65,12 +66,8 @@ export function PaywallScreen(_props: Props) {
           ...theme.softShadow,
           gap: spacing.sm,
         },
-        brand: {
-          ...typography.caption,
-          color: theme.textSecondary,
-          fontWeight: '700',
-          letterSpacing: 0.4,
-          textTransform: 'uppercase',
+        logoWrap: {
+          marginBottom: spacing.xs,
         },
         title: {
           ...typography.title,
@@ -214,7 +211,9 @@ export function PaywallScreen(_props: Props) {
   return (
     <Screen>
       <View style={styles.card}>
-        <Text style={styles.brand}>{appBrand.appName}</Text>
+        <View style={styles.logoWrap}>
+          <AppBrandLogo variant="wordmark" height={26} />
+        </View>
         <Text style={styles.title}>Lifetime Access</Text>
         <Text style={styles.subtitle}>
           One-time purchase. No subscription.
