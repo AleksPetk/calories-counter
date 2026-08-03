@@ -1,13 +1,14 @@
 import { useMemo } from 'react';
-import { Alert, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AppBrandLogo } from '../../components/AppBrandLogo';
 import { Screen } from '../../components/Screen';
-import { appBrand, isLegalUrlConfigured } from '../../config/appBrand';
+import { appBrand, getSupportMailtoUrl } from '../../config/appBrand';
 import { radii } from '../../theme/radii';
 import { spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
 import { useTheme } from '../../theme/ThemeProvider';
+import { openExternalUrl } from '../../utils/openExternalUrl';
 
 export function AppInformationScreen() {
   const theme = useTheme();
@@ -44,11 +45,6 @@ export function AppInformationScreen() {
           color: theme.primary,
           marginTop: spacing.lg,
         },
-        linkDisabled: {
-          ...typography.bodyBold,
-          color: theme.textMuted,
-          marginTop: spacing.lg,
-        },
         hint: {
           ...typography.caption,
           color: theme.textMuted,
@@ -57,25 +53,6 @@ export function AppInformationScreen() {
       }),
     [theme],
   );
-
-  const openConfiguredUrl = async (url: string, label: string) => {
-    if (!isLegalUrlConfigured(url)) {
-      Alert.alert(
-        'Coming soon',
-        `${label} will open when a docs.alekspetk.com URL is configured.`,
-      );
-      return;
-    }
-    try {
-      await Linking.openURL(url);
-    } catch {
-      Alert.alert('Unable to open link', url);
-    }
-  };
-
-  const privacyReady = isLegalUrlConfigured(appBrand.privacyPolicyUrl);
-  const termsReady = isLegalUrlConfigured(appBrand.termsUrl);
-  const contactReady = appBrand.contactEmail.trim().length > 0;
 
   return (
     <Screen>
@@ -88,45 +65,34 @@ export function AppInformationScreen() {
         <Text style={styles.version}>Version {appBrand.version}</Text>
 
         <Pressable
-          onPress={() =>
-            openConfiguredUrl(appBrand.privacyPolicyUrl, 'Privacy Policy')
-          }
+          onPress={() => {
+            void openExternalUrl(appBrand.privacyPolicyUrl, 'Privacy Policy');
+          }}
+          accessibilityRole="link"
+          accessibilityLabel="Privacy Policy"
         >
-          <Text style={privacyReady ? styles.link : styles.linkDisabled}>
-            Privacy Policy
-          </Text>
-          <Text style={styles.hint}>
-            {privacyReady ? appBrand.privacyPolicyUrl : 'URL not configured yet'}
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={() => openConfiguredUrl(appBrand.termsUrl, 'Terms of Use')}
-        >
-          <Text style={termsReady ? styles.link : styles.linkDisabled}>
-            Terms of Use
-          </Text>
-          <Text style={styles.hint}>
-            {termsReady ? appBrand.termsUrl : 'URL not configured yet'}
-          </Text>
+          <Text style={styles.link}>Privacy Policy</Text>
+          <Text style={styles.hint}>{appBrand.privacyPolicyUrl}</Text>
         </Pressable>
         <Pressable
           onPress={() => {
-            if (!contactReady) {
-              Alert.alert(
-                'Coming soon',
-                'Contact email will be available when configured.',
-              );
-              return;
-            }
-            void Linking.openURL(`mailto:${appBrand.contactEmail}`);
+            void openExternalUrl(appBrand.termsUrl, 'Terms of Use');
           }}
+          accessibilityRole="link"
+          accessibilityLabel="Terms of Use"
         >
-          <Text style={contactReady ? styles.link : styles.linkDisabled}>
-            Contact
-          </Text>
-          <Text style={styles.hint}>
-            {contactReady ? appBrand.contactEmail : 'Email not configured yet'}
-          </Text>
+          <Text style={styles.link}>Terms of Use</Text>
+          <Text style={styles.hint}>{appBrand.termsUrl}</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => {
+            void openExternalUrl(getSupportMailtoUrl(), 'Contact Support');
+          }}
+          accessibilityRole="link"
+          accessibilityLabel="Contact Support"
+        >
+          <Text style={styles.link}>Contact Support</Text>
+          <Text style={styles.hint}>{appBrand.contactEmail}</Text>
         </Pressable>
       </View>
     </Screen>

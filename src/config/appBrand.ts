@@ -9,13 +9,9 @@ export const appBrand = {
   version: '1.0.0',
   /** Placeholder until legal entity is set. */
   companyName: '',
-  /**
-   * Legal URLs — leave empty until real docs.alekspetk.com pages exist.
-   * UI must not open placeholder/example.com links.
-   */
-  privacyPolicyUrl: '',
-  termsUrl: '',
-  contactEmail: '',
+  privacyPolicyUrl: 'https://docs.alekspetk.com/quickcal/privacy/',
+  termsUrl: 'https://docs.alekspetk.com/quickcal/terms/',
+  contactEmail: 'support@alekspetk.com',
 } as const;
 
 /**
@@ -43,26 +39,6 @@ export const BRAND_LOGO_ASPECT = 1200 / 346;
 
 export type AppBrand = typeof appBrand;
 
-/** True only for configured https docs.alekspetk.com (or future real) URLs. */
-export function isLegalUrlConfigured(url: string): boolean {
-  const trimmed = url.trim();
-  if (!trimmed) {
-    return false;
-  }
-  try {
-    const parsed = new URL(trimmed);
-    if (parsed.protocol !== 'https:') {
-      return false;
-    }
-    // Reject obvious placeholders.
-    if (
-      parsed.hostname === 'example.com' ||
-      parsed.hostname.endsWith('.example.com')
-    ) {
-      return false;
-    }
-    return true;
-  } catch {
-    return false;
-  }
+export function getSupportMailtoUrl(): string {
+  return `mailto:${appBrand.contactEmail}`;
 }

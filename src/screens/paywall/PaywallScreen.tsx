@@ -12,7 +12,7 @@ import {
 import { PrimaryButton } from '../../components/PrimaryButton';
 import { AppBrandLogo } from '../../components/AppBrandLogo';
 import { Screen } from '../../components/Screen';
-import { appBrand, isLegalUrlConfigured } from '../../config/appBrand';
+import { appBrand, getSupportMailtoUrl } from '../../config/appBrand';
 import { useEntitlement } from '../../entitlement';
 import { formatRemainingTrial } from '../../entitlement/formatRemaining';
 import { STORE_UNAVAILABLE_MESSAGE } from '../../iap/storeAvailability';
@@ -21,6 +21,7 @@ import { radii } from '../../theme/radii';
 import { spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
 import { useTheme } from '../../theme/ThemeProvider';
+import { openExternalUrl } from '../../utils/openExternalUrl';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Paywall'>;
 
@@ -115,27 +116,20 @@ export function PaywallScreen(_props: Props) {
         },
         legalRow: {
           flexDirection: 'row',
+          flexWrap: 'wrap',
           justifyContent: 'center',
           gap: spacing.lg,
           marginTop: spacing.lg,
         },
         legal: {
           ...typography.caption,
-          color: theme.textMuted,
-        },
-        legalDisabled: {
-          opacity: 0.45,
+          color: theme.primary,
+          fontWeight: '600',
         },
         error: {
           ...typography.caption,
           color: theme.danger,
           marginTop: spacing.sm,
-        },
-        note: {
-          ...typography.caption,
-          color: theme.textMuted,
-          marginTop: spacing.md,
-          textAlign: 'center',
         },
       }),
     [theme],
@@ -305,27 +299,37 @@ export function PaywallScreen(_props: Props) {
       </View>
 
       <View style={styles.legalRow}>
-        <Text
-          style={[
-            styles.legal,
-            !isLegalUrlConfigured(appBrand.privacyPolicyUrl) &&
-              styles.legalDisabled,
-          ]}
+        <Pressable
+          onPress={() => {
+            void openExternalUrl(appBrand.privacyPolicyUrl, 'Privacy Policy');
+          }}
+          accessibilityRole="link"
+          accessibilityLabel="Privacy Policy"
+          hitSlop={8}
         >
-          Privacy Policy
-        </Text>
-        <Text
-          style={[
-            styles.legal,
-            !isLegalUrlConfigured(appBrand.termsUrl) && styles.legalDisabled,
-          ]}
+          <Text style={styles.legal}>Privacy Policy</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => {
+            void openExternalUrl(appBrand.termsUrl, 'Terms of Use');
+          }}
+          accessibilityRole="link"
+          accessibilityLabel="Terms of Use"
+          hitSlop={8}
         >
-          Terms of Use
-        </Text>
+          <Text style={styles.legal}>Terms of Use</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => {
+            void openExternalUrl(getSupportMailtoUrl(), 'Contact Support');
+          }}
+          accessibilityRole="link"
+          accessibilityLabel="Contact Support"
+          hitSlop={8}
+        >
+          <Text style={styles.legal}>Contact Support</Text>
+        </Pressable>
       </View>
-      <Text style={styles.note}>
-        Legal links enable when docs.alekspetk.com URLs are configured.
-      </Text>
     </Screen>
   );
 }
