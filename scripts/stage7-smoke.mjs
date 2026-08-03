@@ -87,6 +87,8 @@ function getRetentionOldestKeepDateKey(activeDayKey, retentionDays) {
   const brand = readFileSync(join(root, 'src/config/appBrand.ts'), 'utf8');
   assert.match(brand, /appName: 'QuickCal'/);
   assert.match(brand, /privacyPolicyUrl/);
+  assert.match(brand, /supportUrl/);
+  assert.match(brand, /contactEmail/);
   const onboarding = readFileSync(join(root, 'src/onboarding/pages.tsx'), 'utf8');
   assert.match(onboarding, /Themes/);
   assert.match(onboarding, /Quick Log/);

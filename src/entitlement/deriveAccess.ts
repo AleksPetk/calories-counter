@@ -31,7 +31,9 @@ export function deriveAccess(
     };
   }
 
-  if (record.simulatedPurchased) {
+  // Simulated unlock is DEV-only. Production ignores the flag so a leftover
+  // SQLite value cannot grant write access after a release install.
+  if (__DEV__ && record.simulatedPurchased) {
     return {
       accessState: 'purchased',
       canWrite: true,

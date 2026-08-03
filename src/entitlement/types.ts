@@ -14,7 +14,10 @@ export type EntitlementRecord = {
   storePlatform: StorePlatform | null;
   storePurchasedAt: string | null;
   lastStoreCheckAt: string | null;
-  /** __DEV__ simulation only — never treated as a real store purchase. */
+  /**
+   * __DEV__ simulation only — never treated as a real store purchase.
+   * Production builds ignore this flag in access derivation.
+   */
   simulatedPurchased: boolean;
   updatedAt: string;
 };

@@ -11,7 +11,8 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const TRIAL_DURATION_MS = 14 * 24 * 60 * 60 * 1000;
 
-function deriveAccess(record, nowMs = Date.now()) {
+/** Mirrors src/entitlement/deriveAccess.ts — pass allowSimulated for __DEV__. */
+function deriveAccess(record, nowMs = Date.now(), allowSimulated = true) {
   if (record.storePurchased) {
     return {
       accessState: 'purchased',
@@ -21,7 +22,7 @@ function deriveAccess(record, nowMs = Date.now()) {
       isSimulatedPurchase: false,
     };
   }
-  if (record.simulatedPurchased) {
+  if (allowSimulated && record.simulatedPurchased) {
     return {
       accessState: 'purchased',
       canWrite: true,
@@ -116,10 +117,26 @@ function accessStateToPurchaseState(accessState) {
       simulatedPurchased: true,
     },
     mid,
+    true,
   );
   assert.equal(sim.accessState, 'purchased');
   assert.equal(sim.isSimulatedPurchase, true);
   assert.equal(sim.canWrite, true);
+
+  // Production must ignore simulatedPurchased (allowSimulated === false).
+  const simProd = deriveAccess(
+    {
+      trialStartedAt: null,
+      trialExpiresAt: new Date(mid - 1000).toISOString(),
+      storePurchased: false,
+      simulatedPurchased: true,
+    },
+    mid,
+    false,
+  );
+  assert.equal(simProd.accessState, 'trial_expired');
+  assert.equal(simProd.canWrite, false);
+  assert.equal(simProd.isSimulatedPurchase, false);
 
   const store = deriveAccess(
     {
@@ -129,10 +146,12 @@ function accessStateToPurchaseState(accessState) {
       simulatedPurchased: true,
     },
     mid,
+    false,
   );
   assert.equal(store.accessState, 'purchased');
   assert.equal(store.isStorePurchase, true);
   assert.equal(store.isSimulatedPurchase, false);
+  assert.equal(store.canWrite, true);
 
   assert.equal(accessStateToPurchaseState('trial_active'), 'trial');
   assert.equal(accessStateToPurchaseState('trial_expired'), 'locked');
@@ -275,6 +294,25 @@ function accessStateToPurchaseState(accessState) {
   );
   assert.match(deriveSrc, /trial_active/);
   assert.match(deriveSrc, /storePurchased/);
+  assert.match(deriveSrc, /__DEV__ && record\.simulatedPurchased/);
+
+  const brand = readFileSync(join(root, 'src/config/appBrand.ts'), 'utf8');
+  assert.match(brand, /supportUrl: 'https:\/\/docs\.alekspetk\.com\/quickcal\/support\/'/);
+  assert.match(brand, /contactEmail: 'support@alekspetk\.com'/);
+
+  const appInfo = readFileSync(
+    join(root, 'src/screens/settings/AppInformationScreen.tsx'),
+    'utf8',
+  );
+  assert.match(appInfo, /appBrand\.supportUrl/);
+  assert.match(appInfo, /getSupportMailtoUrl/);
+  assert.match(appInfo, /Privacy Policy/);
+  assert.match(appInfo, /Terms of Use/);
+  assert.match(appInfo, /Support/);
+  assert.match(appInfo, /Contact Support/);
+
+  assert.match(paywall, /appBrand\.supportUrl/);
+  assert.match(paywall, /getSupportMailtoUrl/);
 
   const eraseSrc = readFileSync(
     join(root, 'src/data/erase/eraseAllData.ts'),

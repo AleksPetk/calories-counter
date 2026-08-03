@@ -11,6 +11,7 @@ export const appBrand = {
   companyName: '',
   privacyPolicyUrl: 'https://docs.alekspetk.com/quickcal/privacy/',
   termsUrl: 'https://docs.alekspetk.com/quickcal/terms/',
+  supportUrl: 'https://docs.alekspetk.com/quickcal/support/',
   contactEmail: 'support@alekspetk.com',
 } as const;
 

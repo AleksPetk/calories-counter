@@ -86,6 +86,16 @@ export function AppInformationScreen() {
         </Pressable>
         <Pressable
           onPress={() => {
+            void openExternalUrl(appBrand.supportUrl, 'Support');
+          }}
+          accessibilityRole="link"
+          accessibilityLabel="Support"
+        >
+          <Text style={styles.link}>Support</Text>
+          <Text style={styles.hint}>{appBrand.supportUrl}</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => {
             void openExternalUrl(getSupportMailtoUrl(), 'Contact Support');
           }}
           accessibilityRole="link"

@@ -321,6 +321,16 @@ export function PaywallScreen(_props: Props) {
         </Pressable>
         <Pressable
           onPress={() => {
+            void openExternalUrl(appBrand.supportUrl, 'Support');
+          }}
+          accessibilityRole="link"
+          accessibilityLabel="Support"
+          hitSlop={8}
+        >
+          <Text style={styles.legal}>Support</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => {
             void openExternalUrl(getSupportMailtoUrl(), 'Contact Support');
           }}
           accessibilityRole="link"
