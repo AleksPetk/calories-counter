@@ -97,9 +97,15 @@ export function LibraryItemCard({
       onLongPress={onLongPress}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
       accessibilityRole="button"
+      accessibilityLabel={`${item.name}, ${Math.round(item.calories)} calories, ${item.loggingMode === 'quick' ? 'Quick Log' : 'Portion'}`}
+      accessibilityHint="Long press to delete"
     >
       {item.image ? (
-        <Image source={{ uri: item.image }} style={styles.thumbnail} />
+        <Image
+          source={{ uri: item.image }}
+          style={styles.thumbnail}
+          accessibilityIgnoresInvertColors
+        />
       ) : (
         <View style={styles.thumbnail} />
       )}
@@ -116,7 +122,15 @@ export function LibraryItemCard({
         </View>
         <Text style={styles.meta}>{Math.round(item.calories)} kcal</Text>
       </View>
-      <Pressable onPress={onPressPin} style={styles.pinWrap} hitSlop={8}>
+      <Pressable
+        onPress={onPressPin}
+        style={styles.pinWrap}
+        hitSlop={12}
+        accessibilityRole="button"
+        accessibilityLabel={
+          item.pinned ? `Unpin ${item.name}` : `Pin ${item.name}`
+        }
+      >
         <Ionicons
           name={item.pinned ? 'pin' : 'pin-outline'}
           size={16}

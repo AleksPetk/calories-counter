@@ -45,7 +45,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         setThemeIdState(resolveTheme(row.themeId).id);
       })
       .catch((error) => {
-        console.error('Failed to load theme setting', error);
+        if (__DEV__) {
+          console.error('Failed to load theme setting', error);
+        }
       });
   }, [ready, repositories, settings?.themeId]);
 
@@ -59,7 +61,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         try {
           await repositories.settings.update({ themeId: id });
         } catch (error) {
-          console.error('Failed to persist theme', error);
+          if (__DEV__) {
+            console.error('Failed to persist theme', error);
+          }
         }
       }
     },

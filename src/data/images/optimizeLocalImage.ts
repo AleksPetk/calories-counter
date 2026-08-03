@@ -4,7 +4,7 @@ import {
   SaveFormat,
 } from 'expo-image-manipulator';
 
-/** Final square edge length for library + profile photos. */
+/** Final square edge length for library photos. */
 export const OPTIMIZED_IMAGE_SIZE = 512;
 
 /** JPEG quality ~80–85%. */

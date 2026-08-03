@@ -2,12 +2,8 @@ import type {
   DailyLogEntry,
   LibraryItem,
   LogSourceType,
-  Profile,
   PurchaseState,
   Settings,
-  ActivityLevel,
-  GoalType,
-  Sex,
 } from '../../types';
 import { normalizeLoggingMode } from '../../types/libraryItem';
 import { intToBool } from './utils';
@@ -38,19 +34,6 @@ export type DailyLogEntryRow = {
   fat: number | null;
   food_name_snapshot: string;
   portion: number | null;
-};
-
-export type ProfileRow = {
-  id: number;
-  nickname: string | null;
-  photo: string | null;
-  age: number | null;
-  sex: string;
-  height: number | null;
-  weight: number | null;
-  activity_level: string;
-  goal: string;
-  updated_at: string;
 };
 
 export type SettingsRow = {
@@ -97,21 +80,6 @@ export function mapDailyLogEntry(row: DailyLogEntryRow): DailyLogEntry {
     fat: row.fat,
     foodNameSnapshot: row.food_name_snapshot,
     portion: row.portion,
-  };
-}
-
-export function mapProfile(row: ProfileRow): Profile {
-  return {
-    id: row.id,
-    nickname: row.nickname,
-    photo: row.photo,
-    age: row.age,
-    sex: row.sex as Sex,
-    height: row.height,
-    weight: row.weight,
-    activityLevel: row.activity_level as ActivityLevel,
-    goal: row.goal as GoalType,
-    updatedAt: row.updated_at,
   };
 }
 

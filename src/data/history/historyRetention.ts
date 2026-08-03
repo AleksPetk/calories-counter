@@ -53,7 +53,7 @@ export function labelForRetentionDays(days: number | null): string {
 /**
  * Deletes log entries older than the retention window.
  * No-op when retention is unlimited (`null`).
- * Does not touch library, profile, settings, or images.
+ * Does not touch library, settings, or images.
  */
 export async function applyHistoryRetention(
   repositories: DataRepositories,

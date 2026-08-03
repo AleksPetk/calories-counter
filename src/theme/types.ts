@@ -5,7 +5,12 @@ export type ThemeId =
   | 'darkGraphite'
   | 'softPastel'
   | 'warmCream'
-  | 'oceanBlue';
+  | 'oceanBlue'
+  | 'midnightInk'
+  | 'coralBloom'
+  | 'slateSteel'
+  | 'emberCopper'
+  | 'arcticMint';
 
 export type ThemeGradients = {
   progressUnder: readonly [string, string];

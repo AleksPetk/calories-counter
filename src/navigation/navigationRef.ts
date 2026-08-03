@@ -1,27 +1,11 @@
 import {
-  CommonActions,
   createNavigationContainerRef,
 } from '@react-navigation/native';
 
 import type { RootStackParamList } from './types';
-import type { TutorialTab } from '../tutorial/types';
 
 export const navigationRef =
   createNavigationContainerRef<RootStackParamList>();
-
-export function navigateToTab(tab: TutorialTab) {
-  if (!navigationRef.isReady()) {
-    return;
-  }
-  navigationRef.dispatch(
-    CommonActions.navigate({
-      name: 'Main',
-      params: {
-        screen: tab,
-      },
-    }),
-  );
-}
 
 /**
  * Dismiss the root Paywall modal safely (single pop, no double GO_BACK).

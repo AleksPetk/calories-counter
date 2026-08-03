@@ -59,6 +59,8 @@ export function SearchField({
         onChangeText={onChangeText}
         placeholder={placeholder}
         placeholderTextColor={theme.placeholder}
+        accessibilityLabel={placeholder}
+        accessibilityRole="search"
         style={styles.input}
         autoCorrect={false}
         autoCapitalize="none"

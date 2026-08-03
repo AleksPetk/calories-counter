@@ -150,7 +150,6 @@ function accessStateToPurchaseState(accessState) {
     'library_delete',
     'pin_toggle',
     'log_edit',
-    'profile_write',
   ];
   const allowedWhenExpired = [
     'browse_home',
@@ -169,7 +168,7 @@ function accessStateToPurchaseState(accessState) {
     'purchase',
     'restore',
   ];
-  assert.equal(lockedWrites.length, 9);
+  assert.equal(lockedWrites.length, 8);
   assert.equal(allowedWhenExpired.length, 15);
   const expired = deriveAccess({
     trialStartedAt: '2026-01-01T00:00:00.000Z',

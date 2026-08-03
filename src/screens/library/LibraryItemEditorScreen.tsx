@@ -28,7 +28,6 @@ import {
   parsePositiveCalories,
 } from '../../data/logging/logMath';
 import { LibraryStackParamList } from '../../navigation/types';
-import { TutorialAnchor, useTutorialOptional } from '../../tutorial';
 import type { LoggingMode } from '../../types';
 import { radii } from '../../theme/radii';
 import { spacing } from '../../theme/spacing';
@@ -40,7 +39,6 @@ type Props = NativeStackScreenProps<LibraryStackParamList, 'LibraryItemEditor'>;
 export function LibraryItemEditorScreen({ navigation, route }: Props) {
   const theme = useTheme();
   const { requireWriteAccess } = useEntitlement();
-  const tutorial = useTutorialOptional();
   const itemId = route.params?.itemId;
   const { repositories, refresh } = useData();
   const [name, setName] = useState('');
@@ -324,34 +322,30 @@ export function LibraryItemEditorScreen({ navigation, route }: Props) {
         />
 
         <Text style={styles.label}>Logging mode</Text>
-        <TutorialAnchor id="library.mode" style={{ alignSelf: 'stretch' }}>
-          <View style={styles.modeRow}>
-            <Pressable
-              style={[
-                styles.modeChip,
-                loggingMode === 'quick' && styles.modeChipActive,
-              ]}
-              onPress={() => {
-                setLoggingMode('quick');
-                tutorial?.notifyAction('selected-logging-mode');
-              }}
-            >
-              <Text style={styles.modeText}>Quick Log</Text>
-            </Pressable>
-            <Pressable
-              style={[
-                styles.modeChip,
-                loggingMode === 'portion' && styles.modeChipActive,
-              ]}
-              onPress={() => {
-                setLoggingMode('portion');
-                tutorial?.notifyAction('selected-logging-mode');
-              }}
-            >
-              <Text style={styles.modeText}>Portion</Text>
-            </Pressable>
-          </View>
-        </TutorialAnchor>
+        <View style={styles.modeRow}>
+          <Pressable
+            style={[
+              styles.modeChip,
+              loggingMode === 'quick' && styles.modeChipActive,
+            ]}
+            onPress={() => {
+              setLoggingMode('quick');
+            }}
+          >
+            <Text style={styles.modeText}>Quick Log</Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.modeChip,
+              loggingMode === 'portion' && styles.modeChipActive,
+            ]}
+            onPress={() => {
+              setLoggingMode('portion');
+            }}
+          >
+            <Text style={styles.modeText}>Portion</Text>
+          </Pressable>
+        </View>
         <Text style={styles.modeHint}>
           {loggingMode === 'quick'
             ? 'One tap logs the saved calories immediately.'
@@ -385,17 +379,15 @@ export function LibraryItemEditorScreen({ navigation, route }: Props) {
           placeholderTextColor={theme.placeholder}
         />
 
-        <TutorialAnchor id="library.pin" style={{ alignSelf: 'stretch' }}>
-          <Pressable
-            onPress={() => setPinned((value) => !value)}
-            style={styles.pinRow}
-          >
-            <Text style={styles.pinLabel}>
-              {pinned ? 'Pinned' : 'Pin to Home'}
-            </Text>
-            <Text style={styles.pinValue}>{pinned ? 'On' : 'Off'}</Text>
-          </Pressable>
-        </TutorialAnchor>
+        <Pressable
+          onPress={() => setPinned((value) => !value)}
+          style={styles.pinRow}
+        >
+          <Text style={styles.pinLabel}>
+            {pinned ? 'Pinned' : 'Pin to Home'}
+          </Text>
+          <Text style={styles.pinValue}>{pinned ? 'On' : 'Off'}</Text>
+        </Pressable>
 
         <PrimaryButton
           label={saving ? 'Saving…' : itemId ? 'Save' : 'Create'}

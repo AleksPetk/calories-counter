@@ -59,6 +59,7 @@ export function PrimaryButton({
       onPress={onPress}
       style={({ pressed }) => [styles.wrap, pressed && styles.pressed, style]}
       accessibilityRole="button"
+      accessibilityLabel={label}
     >
       <LinearGradient
         colors={[...gradient]}

@@ -20,7 +20,8 @@ type PinGridProps = {
 };
 
 const COLUMN_COUNT = 3;
-const SCREEN_HORIZONTAL_PAD = (spacing.lg - 2) * 2;
+/** Must match `Screen` horizontal padding (`spacing.lg` on each side). */
+const SCREEN_HORIZONTAL_PAD = spacing.lg * 2;
 
 export function PinGrid({ items, onPressItem }: PinGridProps) {
   const theme = useTheme();

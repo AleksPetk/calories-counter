@@ -12,7 +12,6 @@ import type { Settings } from '../types';
 import { applyHistoryRetention } from './history/historyRetention';
 import { initDatabase, type DataRepositories } from './index';
 import { seedDevLibraryIfEmpty } from './seed/seedDevData';
-import { cleanupTutorialArtifacts } from '../tutorial/cleanup';
 
 type DataContextValue = {
   ready: boolean;
@@ -65,7 +64,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         }
         const nextSettings = await repos.settings.get();
         await applyHistoryRetention(repos, nextSettings);
-        await cleanupTutorialArtifacts(repos);
         if (!cancelled) {
           setRepositories(repos);
           setSettings(nextSettings);

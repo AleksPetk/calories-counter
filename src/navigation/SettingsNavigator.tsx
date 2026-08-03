@@ -2,9 +2,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { AppInformationScreen } from '../screens/settings/AppInformationScreen';
 import { DailyGoalEditorScreen } from '../screens/settings/DailyGoalEditorScreen';
-import { ProfileScreen } from '../screens/settings/ProfileScreen';
 import { ResetTimeEditorScreen } from '../screens/settings/ResetTimeEditorScreen';
 import { RetentionPickerScreen } from '../screens/settings/RetentionPickerScreen';
+import { ThemesScreen } from '../screens/settings/ThemesScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { useTheme } from '../theme/ThemeProvider';
 import { SettingsStackParamList } from './types';
@@ -29,9 +29,9 @@ export function SettingsNavigator() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{ title: 'Profile' }}
+        name="Themes"
+        component={ThemesScreen}
+        options={{ title: 'Themes' }}
       />
       <Stack.Screen
         name="AppInformation"

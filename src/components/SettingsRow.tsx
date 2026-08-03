@@ -20,13 +20,14 @@ export function SettingsRow({
   isLast = false,
 }: SettingsRowProps) {
   const theme = useTheme();
+  const interactive = typeof onPress === 'function';
   const styles = useMemo(
     () =>
       StyleSheet.create({
         row: {
           minHeight: 60,
           paddingVertical: spacing.md,
-          paddingHorizontal: spacing.lg - 2,
+          paddingHorizontal: spacing.lg,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -61,20 +62,31 @@ export function SettingsRow({
     [theme],
   );
 
+  const accessibilityLabel = value ? `${label}, ${value}` : label;
+
   return (
     <Pressable
       onPress={onPress}
+      disabled={!interactive}
       style={({ pressed }) => [
         styles.row,
         !isLast && styles.border,
-        pressed && styles.pressed,
+        interactive && pressed && styles.pressed,
       ]}
-      accessibilityRole="button"
+      accessibilityRole={interactive ? 'button' : 'text'}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ disabled: !interactive }}
     >
       <Text style={styles.label}>{label}</Text>
       <View style={styles.right}>
-        {value ? <Text style={styles.value}>{value}</Text> : null}
-        <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+        {value ? (
+          <Text style={styles.value} numberOfLines={1}>
+            {value}
+          </Text>
+        ) : null}
+        {interactive ? (
+          <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+        ) : null}
       </View>
     </Pressable>
   );

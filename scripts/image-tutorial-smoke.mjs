@@ -1,5 +1,5 @@
 /**
- * Image optimization + tutorial architecture smoke checks.
+ * Image optimization smoke checks.
  */
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -23,11 +23,6 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
     'utf8',
   );
   assert.match(library, /optimizeLocalImage/);
-  const profile = readFileSync(
-    join(root, 'src/data/images/profileImages.ts'),
-    'utf8',
-  );
-  assert.match(profile, /optimizeLocalImage/);
 
   const pkg = JSON.parse(
     readFileSync(join(root, 'package.json'), 'utf8'),
@@ -36,23 +31,25 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 }
 
 {
-  const steps = readFileSync(join(root, 'src/tutorial/steps.ts'), 'utf8');
-  assert.match(steps, /TUTORIAL_STEPS/);
-  assert.match(steps, /welcome/);
-  assert.match(steps, /Themes can be changed/);
-  const cleanup = readFileSync(join(root, 'src/tutorial/cleanup.ts'), 'utf8');
-  assert.match(cleanup, /tutorial-temp-/);
-  assert.match(cleanup, /cleanupTutorialArtifacts/);
-  assert.match(cleanup, /ensureTutorialDemoItem/);
-  const provider = readFileSync(
-    join(root, 'src/tutorial/TutorialProvider.tsx'),
+  const pages = readFileSync(join(root, 'src/onboarding/pages.tsx'), 'utf8');
+  assert.match(pages, /ONBOARDING_PAGES/);
+  assert.match(pages, /Quick Log/);
+  assert.match(pages, /Portion/);
+  assert.match(pages, /Themes/);
+  const modal = readFileSync(
+    join(root, 'src/onboarding/OnboardingModal.tsx'),
     'utf8',
   );
-  assert.match(provider, /SpotlightOverlay/);
+  assert.match(modal, /Start Using QuickCal/);
+  assert.match(modal, /pagingEnabled/);
   assert.doesNotMatch(
     readFileSync(join(root, 'App.tsx'), 'utf8'),
-    /TutorialModal/,
+    /TutorialProvider|SpotlightOverlay/,
+  );
+  assert.doesNotMatch(
+    readFileSync(join(root, 'App.tsx'), 'utf8'),
+    /from '\.\/src\/tutorial/,
   );
 }
 
-console.log('ok image optimize + guided tutorial smoke');
+console.log('ok image optimize + static onboarding smoke');

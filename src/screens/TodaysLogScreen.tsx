@@ -181,7 +181,12 @@ export function TodaysLogScreen() {
   return (
     <Screen>
       <View style={styles.headerActions}>
-        <Pressable onPress={onUndo} hitSlop={8}>
+        <Pressable
+          onPress={onUndo}
+          hitSlop={12}
+          accessibilityRole="button"
+          accessibilityLabel="Undo last log"
+        >
           <Text style={styles.undo}>Undo last log</Text>
         </Pressable>
       </View>
@@ -220,10 +225,18 @@ export function TodaysLogScreen() {
                     }
                     navigation.navigate('LogEntryEditor', { entryId: entry.id });
                   }}
+                  hitSlop={12}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Edit ${entry.foodNameSnapshot}`}
                 >
                   <Text style={styles.action}>Edit</Text>
                 </Pressable>
-                <Pressable onPress={() => onDelete(entry)}>
+                <Pressable
+                  onPress={() => onDelete(entry)}
+                  hitSlop={12}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Delete ${entry.foodNameSnapshot}`}
+                >
                   <Text style={[styles.action, styles.danger]}>Delete</Text>
                 </Pressable>
               </View>

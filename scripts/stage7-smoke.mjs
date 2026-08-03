@@ -87,10 +87,11 @@ function getRetentionOldestKeepDateKey(activeDayKey, retentionDays) {
   const brand = readFileSync(join(root, 'src/config/appBrand.ts'), 'utf8');
   assert.match(brand, /appName: 'QuickCal'/);
   assert.match(brand, /privacyPolicyUrl/);
-  const tutorial = readFileSync(join(root, 'src/tutorial/steps.ts'), 'utf8');
-  assert.match(tutorial, /Themes can be changed/);
-  assert.match(tutorial, /Quick Log/);
-  assert.match(tutorial, /Portion/);
+  const onboarding = readFileSync(join(root, 'src/onboarding/pages.tsx'), 'utf8');
+  assert.match(onboarding, /Themes/);
+  assert.match(onboarding, /Quick Log/);
+  assert.match(onboarding, /Portion/);
+  assert.match(onboarding, /Settings/);
 }
 
 console.log('ok stage 7 history / erase / tutorial smoke');

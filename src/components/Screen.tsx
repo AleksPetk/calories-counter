@@ -22,7 +22,7 @@ export function Screen({ children, style, padded = true }: ScreenProps) {
         },
         content: {
           flex: 1,
-          paddingHorizontal: spacing.lg - 2,
+          paddingHorizontal: spacing.lg,
           paddingTop: spacing.md,
         },
         contentFlush: {

@@ -1,5 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import { appBrand } from '../config/appBrand';
 import { PaywallScreen } from '../screens/paywall/PaywallScreen';
 import { useTheme } from '../theme/ThemeProvider';
 import { RootNavigator } from './RootNavigator';
@@ -19,7 +20,7 @@ export function AppNavigator() {
         options={{
           presentation: 'modal',
           headerShown: true,
-          title: 'QuickCal Lifetime',
+          title: `${appBrand.appName} Lifetime`,
           headerTintColor: theme.textPrimary,
           headerStyle: { backgroundColor: theme.background },
           headerShadowVisible: false,

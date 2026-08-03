@@ -6,7 +6,6 @@ import {
   DataRepositories,
   EntitlementRepository,
   LibraryItemRepository,
-  ProfileRepository,
   SettingsRepository,
 } from './repositories';
 
@@ -21,7 +20,6 @@ function createRepositories(db: SQLiteDatabase): DataRepositories {
   return {
     libraryItems: new LibraryItemRepository(db),
     dailyLogEntries: new DailyLogEntryRepository(db),
-    profile: new ProfileRepository(db),
     settings: new SettingsRepository(db),
     entitlement: new EntitlementRepository(db),
   };

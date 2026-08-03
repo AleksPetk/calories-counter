@@ -6,7 +6,6 @@ import {
 import { DEFAULT_THEME_ID } from '../../theme/registry';
 import type { Settings } from '../../types';
 import { deletePersistedLibraryImage } from '../images/libraryImages';
-import { deletePersistedProfileImage } from '../images/profileImages';
 import type { DataRepositories } from '../repositories';
 
 /**
@@ -18,14 +17,13 @@ import type { DataRepositories } from '../repositories';
  * - settings.purchase_state is re-synced from entitlement after wipe
  *
  * Clears simulated DEV purchase flag so erase cannot look like a store unlock.
+ *
+ * Note: legacy `profile` SQLite table (if present) is left untouched — unused by the app.
  */
 export async function eraseAllData(
   repositories: DataRepositories,
 ): Promise<Settings> {
   const entitlement = await repositories.entitlement.get();
-
-  const profile = await repositories.profile.get();
-  await deletePersistedProfileImage(profile.photo);
 
   const items = await repositories.libraryItems.getAll();
   for (const item of items) {
@@ -34,17 +32,6 @@ export async function eraseAllData(
   }
 
   await repositories.dailyLogEntries.deleteAll();
-
-  await repositories.profile.update({
-    nickname: null,
-    photo: null,
-    age: null,
-    sex: 'unspecified',
-    height: null,
-    weight: null,
-    activityLevel: 'unspecified',
-    goal: 'unspecified',
-  });
 
   // Clear DEV simulation only; never clear store purchase or trial clock.
   await repositories.entitlement.update({

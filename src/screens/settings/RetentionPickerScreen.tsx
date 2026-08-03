@@ -93,7 +93,7 @@ export function RetentionPickerScreen({
   return (
     <Screen>
       <Text style={styles.hint}>
-        Older log entries are removed automatically. Library, profile, and
+        Older log entries are removed automatically. Library and
         settings are never deleted by retention.
       </Text>
       <View style={styles.group}>

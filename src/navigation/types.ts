@@ -16,7 +16,7 @@ export type HistoryStackParamList = {
 
 export type SettingsStackParamList = {
   SettingsHome: undefined;
-  Profile: undefined;
+  Themes: undefined;
   AppInformation: undefined;
   DailyGoalEditor: undefined;
   ResetTimeEditor: undefined;

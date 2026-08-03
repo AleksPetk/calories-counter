@@ -1,11 +1,10 @@
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Screen } from '../components/Screen';
 import { SettingsRow } from '../components/SettingsRow';
-import { ThemePicker } from '../components/ThemePicker';
 import { appBrand } from '../config/appBrand';
 import {
   DEFAULT_DAILY_GOAL,
@@ -44,13 +43,13 @@ function entitlementStatusLabel(
 
 export function SettingsScreen() {
   const theme = useTheme();
-  const { setThemeId } = useThemeControls();
+  const { themeId, setThemeId } = useThemeControls();
   const navigation =
     useNavigation<NativeStackNavigationProp<SettingsStackParamList>>();
+  const currentThemeName = resolveTheme(themeId).name;
   const {
     repositories,
     refresh,
-    revision,
     settings,
     reloadSettings,
     requestTutorialReplay,
@@ -62,30 +61,12 @@ export function SettingsScreen() {
     refreshLocal,
   } = useEntitlement();
   const [reseeding, setReseeding] = useState(false);
-  const [profileSummary, setProfileSummary] = useState('Not set');
 
   const goal = settings?.dailyGoal ?? DEFAULT_DAILY_GOAL;
   const resetTime = settings?.resetTime ?? DEFAULT_RESET_TIME;
   const retentionLabel = labelForRetentionDays(
     settings?.historyRetention ?? null,
   );
-
-  useEffect(() => {
-    if (!repositories) {
-      return;
-    }
-    repositories.profile.get().then((profile) => {
-      if (profile.nickname?.trim()) {
-        setProfileSummary(profile.nickname.trim());
-        return;
-      }
-      if (profile.height != null || profile.weight != null) {
-        setProfileSummary('Saved');
-        return;
-      }
-      setProfileSummary('Not set');
-    });
-  }, [repositories, revision]);
 
   const styles = useMemo(
     () =>
@@ -123,7 +104,7 @@ export function SettingsScreen() {
     }
     Alert.alert(
       'Clear History?',
-      'Deletes all log entries. Library, profile, settings, theme, and tutorial state are kept.',
+      'Deletes all log entries. Library, settings, theme, and tutorial state are kept.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -144,7 +125,7 @@ export function SettingsScreen() {
     }
     Alert.alert(
       'Erase All Data?',
-      'This permanently deletes your library, history, profile, and local settings. Trial clock and purchase entitlement are kept.',
+      'This permanently deletes your library, history, and local settings. Trial clock and purchase entitlement are kept.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -244,7 +225,14 @@ export function SettingsScreen() {
       >
         <View>
           <Text style={styles.sectionLabel}>Appearance</Text>
-          <ThemePicker />
+          <View style={styles.group}>
+            <SettingsRow
+              label="Themes"
+              value={currentThemeName}
+              onPress={() => navigation.navigate('Themes')}
+              isLast
+            />
+          </View>
         </View>
 
         <View>
@@ -264,18 +252,6 @@ export function SettingsScreen() {
               label="History retention"
               value={retentionLabel}
               onPress={() => navigation.navigate('RetentionPicker')}
-              isLast
-            />
-          </View>
-        </View>
-
-        <View>
-          <Text style={styles.sectionLabel}>You</Text>
-          <View style={styles.group}>
-            <SettingsRow
-              label="Profile"
-              value={profileSummary}
-              onPress={() => navigation.navigate('Profile')}
               isLast
             />
           </View>

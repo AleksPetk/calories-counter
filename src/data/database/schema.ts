@@ -4,7 +4,8 @@
  *
  * Portion is stored as REAL; unit semantics are deferred.
  * Image fields store local filesystem paths, not bundled assets.
- * Profile and Settings are single-row tables (id = 1).
+ * Settings is a single-row table (id = 1).
+ * Legacy `profile` table may still exist from older installs; unused by the app.
  */
 export const SCHEMA_V1_SQL = `
 PRAGMA foreign_keys = ON;

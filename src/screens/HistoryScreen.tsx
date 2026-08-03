@@ -20,7 +20,6 @@ import { shiftDateKey } from '../data/history/historyRetention';
 import { sumCalories } from '../data/logging/logMath';
 import { HistoryStackParamList } from '../navigation/types';
 import type { DailyLogEntry } from '../types';
-import { TutorialAnchor } from '../tutorial';
 import { radii } from '../theme/radii';
 import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
@@ -233,45 +232,43 @@ export function HistoryScreen() {
     <Screen>
       <Text style={styles.title}>History</Text>
 
-      <TutorialAnchor id="history.day" style={{ alignSelf: 'stretch' }}>
-        <View style={styles.dateCard}>
-          <Pressable
-            style={styles.navButton}
-            accessibilityRole="button"
-            accessibilityLabel="Previous day"
-            onPress={() => setSelectedDay((day) => shiftDateKey(day, -1))}
-          >
-            <Ionicons name="chevron-back" size={20} color={theme.textPrimary} />
-          </Pressable>
+      <View style={styles.dateCard}>
+        <Pressable
+          style={styles.navButton}
+          accessibilityRole="button"
+          accessibilityLabel="Previous day"
+          onPress={() => setSelectedDay((day) => shiftDateKey(day, -1))}
+        >
+          <Ionicons name="chevron-back" size={20} color={theme.textPrimary} />
+        </Pressable>
 
-          <View style={styles.dateCenter}>
-            <Text style={styles.dateLabel}>
-              {formatDayLabel(selectedDay, activeDayKey)}
-            </Text>
-            <Text style={styles.dateKey}>{selectedDay}</Text>
-            <Text style={styles.total}>{Math.round(total)} kcal</Text>
-          </View>
-
-          <Pressable
-            style={[styles.navButton, !canGoNext && styles.navDisabled]}
-            accessibilityRole="button"
-            accessibilityLabel="Next day"
-            disabled={!canGoNext}
-            onPress={() => {
-              if (!canGoNext) {
-                return;
-              }
-              setSelectedDay((day) => shiftDateKey(day, 1));
-            }}
-          >
-            <Ionicons
-              name="chevron-forward"
-              size={20}
-              color={theme.textPrimary}
-            />
-          </Pressable>
+        <View style={styles.dateCenter}>
+          <Text style={styles.dateLabel}>
+            {formatDayLabel(selectedDay, activeDayKey)}
+          </Text>
+          <Text style={styles.dateKey}>{selectedDay}</Text>
+          <Text style={styles.total}>{Math.round(total)} kcal</Text>
         </View>
-      </TutorialAnchor>
+
+        <Pressable
+          style={[styles.navButton, !canGoNext && styles.navDisabled]}
+          accessibilityRole="button"
+          accessibilityLabel="Next day"
+          disabled={!canGoNext}
+          onPress={() => {
+            if (!canGoNext) {
+              return;
+            }
+            setSelectedDay((day) => shiftDateKey(day, 1));
+          }}
+        >
+          <Ionicons
+            name="chevron-forward"
+            size={20}
+            color={theme.textPrimary}
+          />
+        </Pressable>
+      </View>
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -302,10 +299,18 @@ export function HistoryScreen() {
                       entryId: entry.id,
                     });
                   }}
+                  hitSlop={12}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Edit ${entry.foodNameSnapshot}`}
                 >
                   <Text style={styles.action}>Edit</Text>
                 </Pressable>
-                <Pressable onPress={() => onDelete(entry)}>
+                <Pressable
+                  onPress={() => onDelete(entry)}
+                  hitSlop={12}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Delete ${entry.foodNameSnapshot}`}
+                >
                   <Text style={[styles.action, styles.danger]}>Delete</Text>
                 </Pressable>
               </View>

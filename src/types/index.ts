@@ -12,13 +12,6 @@ export type {
   LogSourceType,
 } from './dailyLogEntry';
 export type {
-  ActivityLevel,
-  GoalType,
-  Profile,
-  ProfileUpdate,
-  Sex,
-} from './profile';
-export type {
   PurchaseState,
   Settings,
   SettingsUpdate,
