@@ -22,6 +22,15 @@ export type OwnedPurchaseQuery = {
   unavailable: boolean;
 };
 
+export type OwnedPurchaseQueryOptions = {
+  /**
+   * When true, runs StoreKit restore/sync (may show Apple ID password UI).
+   * Use only from explicit Restore Purchase / already-owned purchase flows.
+   * Startup and foreground must leave this false.
+   */
+  interactiveRestore?: boolean;
+};
+
 type StoreModule = typeof import('expo-iap');
 
 let storeModule: StoreModule | null = null;
@@ -137,8 +146,14 @@ function matchesLifetimeProduct(productId: string | null | undefined): boolean {
 
 /**
  * Query store for an owned lifetime product. Does not grant entitlement itself.
+ *
+ * Silent by default (getAvailablePurchases only). Interactive restore/sync is
+ * opt-in — restorePurchases/syncIOS can show an Apple ID password sheet and
+ * must never run on launch or foreground.
  */
-export async function queryOwnedLifetimePurchase(): Promise<OwnedPurchaseQuery> {
+export async function queryOwnedLifetimePurchase(
+  options: OwnedPurchaseQueryOptions = {},
+): Promise<OwnedPurchaseQuery> {
   if (!isNativeIapAvailable()) {
     return {
       owned: false,
@@ -169,7 +184,10 @@ export async function queryOwnedLifetimePurchase(): Promise<OwnedPurchaseQuery> 
   }
 
   try {
-    await mod.restorePurchases();
+    if (options.interactiveRestore) {
+      // May prompt for Apple ID credentials — user-initiated restore only.
+      await mod.restorePurchases();
+    }
     const purchases = await mod.getAvailablePurchases();
     let pending = false;
     for (const purchase of purchases) {
@@ -221,7 +239,8 @@ export async function queryOwnedLifetimePurchase(): Promise<OwnedPurchaseQuery> 
  * owned-purchase query before unlocking. Never grant without store ownership.
  */
 async function resolveAlreadyOwnedPurchase(): Promise<PurchaseOutcome> {
-  const owned = await queryOwnedLifetimePurchase();
+  // Purchase was user-initiated; interactive restore is allowed here.
+  const owned = await queryOwnedLifetimePurchase({ interactiveRestore: true });
   if (owned.owned && owned.productId) {
     return { status: 'success', productId: owned.productId };
   }

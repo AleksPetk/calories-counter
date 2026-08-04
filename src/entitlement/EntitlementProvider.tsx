@@ -163,6 +163,7 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
     if (!repositories) {
       return;
     }
+    // Silent owned-purchase check only — never interactive StoreKit sync here.
     const result = await queryOwnedLifetimePurchase();
     const stamp = nowIso();
     if (result.owned && result.productId) {
@@ -170,7 +171,8 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
       return;
     }
     const current = await repositories.entitlement.get();
-    // Do not clear a confirmed store purchase solely because the store is offline.
+    // Do not clear a confirmed store purchase solely because the store is offline
+    // or silent query returned empty (finished non-consumables need explicit Restore).
     const record = await repositories.entitlement.update({
       lastStoreCheckAt: stamp,
       storePurchased: current.storePurchased,
@@ -241,7 +243,9 @@ export function EntitlementProvider({ children }: { children: ReactNode }) {
         setLastError(STORE_UNAVAILABLE_MESSAGE);
         return 'unavailable';
       }
-      const result = await queryOwnedLifetimePurchase();
+      const result = await queryOwnedLifetimePurchase({
+        interactiveRestore: true,
+      });
       if (result.unavailable) {
         setLastError(STORE_UNAVAILABLE_MESSAGE);
         return 'unavailable';

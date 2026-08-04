@@ -347,6 +347,12 @@ function accessStateToPurchaseState(accessState) {
   assert.match(iapSrc, /ErrorCode\.AlreadyOwned/);
   assert.match(iapSrc, /resolveAlreadyOwnedPurchase/);
   assert.match(iapSrc, /queryOwnedLifetimePurchase/);
+  assert.match(iapSrc, /interactiveRestore/);
+  // Interactive StoreKit sync is opt-in only.
+  assert.match(
+    iapSrc,
+    /if \(options\.interactiveRestore\) \{\s*[\s\S]*?await mod\.restorePurchases\(\);/,
+  );
 
   const entitlementSrc = readFileSync(
     join(root, 'src/entitlement/EntitlementProvider.tsx'),
@@ -357,6 +363,21 @@ function accessStateToPurchaseState(accessState) {
   assert.match(entitlementSrc, /grantStorePurchase/);
   // Startup ownership refresh when store connects.
   assert.match(entitlementSrc, /await refreshFromStore\(\)/);
+  // Foreground uses the same silent refreshFromStore path.
+  assert.match(entitlementSrc, /void refreshFromStore\(\)/);
+  // Explicit Restore Purchase is the only interactive restore entry.
+  assert.match(
+    entitlementSrc,
+    /queryOwnedLifetimePurchase\(\{\s*interactiveRestore: true,\s*\}\)/,
+  );
+  // refreshFromStore must call the silent default (no interactiveRestore arg).
+  const refreshBlock = entitlementSrc.slice(
+    entitlementSrc.indexOf('const refreshFromStore'),
+    entitlementSrc.indexOf('const loadProduct'),
+  );
+  assert.match(refreshBlock, /queryOwnedLifetimePurchase\(\)/);
+  assert.doesNotMatch(refreshBlock, /interactiveRestore:\s*true/);
+  assert.doesNotMatch(refreshBlock, /\.restorePurchases\s*\(/);
 
   const eraseSrc = readFileSync(
     join(root, 'src/data/erase/eraseAllData.ts'),
