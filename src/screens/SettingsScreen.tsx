@@ -67,6 +67,7 @@ export function SettingsScreen() {
   const retentionLabel = labelForRetentionDays(
     settings?.historyRetention ?? null,
   );
+  const isPurchased = snapshot?.accessState === 'purchased';
 
   const styles = useMemo(
     () =>
@@ -268,18 +269,23 @@ export function SettingsScreen() {
                 snapshot?.remainingMs,
               )}
               onPress={openPaywall}
+              isLast={isPurchased}
             />
-            <SettingsRow
-              label="Unlock Lifetime"
-              onPress={openPaywall}
-            />
-            <SettingsRow
-              label="Restore Purchase"
-              onPress={() => {
-                void onRestore();
-              }}
-              isLast
-            />
+            {!isPurchased ? (
+              <>
+                <SettingsRow
+                  label="Unlock Lifetime"
+                  onPress={openPaywall}
+                />
+                <SettingsRow
+                  label="Restore Purchase"
+                  onPress={() => {
+                    void onRestore();
+                  }}
+                  isLast
+                />
+              </>
+            ) : null}
           </View>
         </View>
 

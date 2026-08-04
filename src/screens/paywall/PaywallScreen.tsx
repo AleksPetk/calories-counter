@@ -254,38 +254,40 @@ export function PaywallScreen(_props: Props) {
 
       <View style={styles.actions}>
         {!purchased ? (
-          <PrimaryButton
-            label={
-              !storeAvailable
-                ? 'Purchase (store build required)'
-                : busy === 'purchasing'
-                  ? 'Purchasing…'
-                  : 'Purchase'
-            }
-            onPress={() => {
-              if (busyNow) {
-                return;
+          <>
+            <PrimaryButton
+              label={
+                !storeAvailable
+                  ? 'Purchase (store build required)'
+                  : busy === 'purchasing'
+                    ? 'Purchasing…'
+                    : 'Purchase'
               }
-              void onPurchase();
-            }}
-          />
-        ) : null}
+              onPress={() => {
+                if (busyNow) {
+                  return;
+                }
+                void onPurchase();
+              }}
+            />
 
-        <Pressable
-          style={styles.secondary}
-          disabled={busyNow}
-          onPress={() => {
-            void onRestore();
-          }}
-        >
-          <Text style={styles.secondaryLabel}>
-            {busy === 'restoring'
-              ? 'Restoring…'
-              : !storeAvailable
-                ? 'Restore (store build required)'
-                : 'Restore Purchase'}
-          </Text>
-        </Pressable>
+            <Pressable
+              style={styles.secondary}
+              disabled={busyNow}
+              onPress={() => {
+                void onRestore();
+              }}
+            >
+              <Text style={styles.secondaryLabel}>
+                {busy === 'restoring'
+                  ? 'Restoring…'
+                  : !storeAvailable
+                    ? 'Restore (store build required)'
+                    : 'Restore Purchase'}
+              </Text>
+            </Pressable>
+          </>
+        ) : null}
 
         {trialActive ? (
           <Pressable style={styles.secondary} onPress={dismiss}>

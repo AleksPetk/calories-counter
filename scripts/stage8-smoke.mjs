@@ -153,6 +153,21 @@ function accessStateToPurchaseState(accessState) {
   assert.equal(store.isSimulatedPurchase, false);
   assert.equal(store.canWrite, true);
 
+  // Real store purchase dominates simulated flag in both DEV and production modes.
+  const storeOverSimDev = deriveAccess(
+    {
+      trialStartedAt: null,
+      trialExpiresAt: null,
+      storePurchased: true,
+      simulatedPurchased: true,
+    },
+    mid,
+    true,
+  );
+  assert.equal(storeOverSimDev.isStorePurchase, true);
+  assert.equal(storeOverSimDev.isSimulatedPurchase, false);
+  assert.equal(storeOverSimDev.canWrite, true);
+
   assert.equal(accessStateToPurchaseState('trial_active'), 'trial');
   assert.equal(accessStateToPurchaseState('trial_expired'), 'locked');
   assert.equal(accessStateToPurchaseState('purchased'), 'purchased');
@@ -313,6 +328,35 @@ function accessStateToPurchaseState(accessState) {
 
   assert.match(paywall, /appBrand\.supportUrl/);
   assert.match(paywall, /getSupportMailtoUrl/);
+  // Restore remains on paywall for non-purchased users only.
+  assert.match(paywall, /!purchased \? \(/);
+  assert.match(paywall, /Restore Purchase/);
+
+  const settingsSrc = readFileSync(
+    join(root, 'src/screens/SettingsScreen.tsx'),
+    'utf8',
+  );
+  assert.match(settingsSrc, /const isPurchased = snapshot\?\.accessState === 'purchased'/);
+  assert.match(settingsSrc, /!isPurchased \? \(/);
+  assert.match(settingsSrc, /Unlock Lifetime/);
+  assert.match(settingsSrc, /Restore Purchase/);
+  // Purchased Status row is last; Unlock/Restore gated behind !isPurchased.
+  assert.match(settingsSrc, /isLast=\{isPurchased\}/);
+
+  const iapSrc = readFileSync(join(root, 'src/iap/iapService.ts'), 'utf8');
+  assert.match(iapSrc, /ErrorCode\.AlreadyOwned/);
+  assert.match(iapSrc, /resolveAlreadyOwnedPurchase/);
+  assert.match(iapSrc, /queryOwnedLifetimePurchase/);
+
+  const entitlementSrc = readFileSync(
+    join(root, 'src/entitlement/EntitlementProvider.tsx'),
+    'utf8',
+  );
+  assert.match(entitlementSrc, /refreshFromStore/);
+  assert.match(entitlementSrc, /AppState\.addEventListener/);
+  assert.match(entitlementSrc, /grantStorePurchase/);
+  // Startup ownership refresh when store connects.
+  assert.match(entitlementSrc, /await refreshFromStore\(\)/);
 
   const eraseSrc = readFileSync(
     join(root, 'src/data/erase/eraseAllData.ts'),

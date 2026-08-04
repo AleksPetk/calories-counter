@@ -217,8 +217,40 @@ export async function queryOwnedLifetimePurchase(): Promise<OwnedPurchaseQuery> 
 }
 
 /**
+ * When StoreKit reports the non-consumable is already owned, confirm via an
+ * owned-purchase query before unlocking. Never grant without store ownership.
+ */
+async function resolveAlreadyOwnedPurchase(): Promise<PurchaseOutcome> {
+  const owned = await queryOwnedLifetimePurchase();
+  if (owned.owned && owned.productId) {
+    return { status: 'success', productId: owned.productId };
+  }
+  if (owned.pending) {
+    return {
+      status: 'pending',
+      productId: getLifetimeProductId(),
+    };
+  }
+  return {
+    status: 'failed',
+    message:
+      'The store reported this product is already owned, but ownership could not be confirmed yet. Try Restore Purchase.',
+  };
+}
+
+function isAlreadyOwnedError(
+  error: unknown,
+  errorCodeAlreadyOwned: string,
+): boolean {
+  if (!error || typeof error !== 'object' || !('code' in error)) {
+    return false;
+  }
+  return (error as { code?: string }).code === errorCodeAlreadyOwned;
+}
+
+/**
  * Start a lifetime purchase. Resolves when the store reports success, cancel, or failure.
- * Unlock must only happen after status === 'success'.
+ * Unlock must only happen after status === 'success' (including confirmed already-owned).
  */
 export function purchaseLifetime(): Promise<PurchaseOutcome> {
   return new Promise(async (resolve) => {
@@ -291,6 +323,10 @@ export function purchaseLifetime(): Promise<PurchaseOutcome> {
         finish({ status: 'cancelled' });
         return;
       }
+      if (error.code === mod.ErrorCode.AlreadyOwned) {
+        void resolveAlreadyOwnedPurchase().then(finish);
+        return;
+      }
       finish({
         status: 'failed',
         message: error.message || 'Purchase failed.',
@@ -313,6 +349,10 @@ export function purchaseLifetime(): Promise<PurchaseOutcome> {
         (error as { code?: string }).code === mod.ErrorCode.UserCancelled
       ) {
         finish({ status: 'cancelled' });
+        return;
+      }
+      if (isAlreadyOwnedError(error, mod.ErrorCode.AlreadyOwned)) {
+        finish(await resolveAlreadyOwnedPurchase());
         return;
       }
       finish({

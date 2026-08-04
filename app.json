@@ -13,7 +13,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.alekspetk.quickcal"
+      "bundleIdentifier": "com.alekspetk.quickcal",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.alekspetk.quickcal",
@@ -22,7 +25,10 @@
         "backgroundColor": "#0A120C",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -36,7 +42,13 @@
         }
       ],
       "expo-iap",
-      "expo-dev-client"
-    ]
+      "expo-dev-client",
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "536e96e7-0d16-4a76-a5ac-3dd6f5bda2ef"
+      }
+    }
   }
 }
