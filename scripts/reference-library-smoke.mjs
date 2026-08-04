@@ -122,7 +122,38 @@ const dataset = JSON.parse(
   assert.match(library, /QuickCal Reference/);
   assert.match(library, /ReferenceCopy/);
   assert.match(library, /filterReferenceFoods/);
+  assert.match(library, /ReferenceCategoryPicker/);
+  assert.match(library, /Category/);
+  assert.match(library, /categoryPickerOpen/);
+  assert.match(library, /useState<ReferenceCategory \| null>\(null\)/);
+  assert.doesNotMatch(library, /filterChip/);
+  assert.doesNotMatch(library, /flexWrap: 'wrap'/);
   assert.doesNotMatch(library, /barcode/i);
+  assert.match(library, /No matching reference foods/);
+
+  const picker = read('src/components/ReferenceCategoryPicker.tsx');
+  assert.match(picker, /All categories/);
+  assert.match(picker, /REFERENCE_CATEGORIES/);
+  assert.match(picker, /REFERENCE_CATEGORY_LABELS/);
+  assert.match(picker, /checkmark/);
+  assert.match(picker, /animationType="slide"/);
+  assert.match(picker, /referenceCategoryLabel/);
+  assert.match(picker, /return 'All'/);
+
+  const labels = read('src/data/reference/types.ts');
+  assert.match(labels, /Meat & Poultry/);
+  assert.match(labels, /Fish & Seafood/);
+  assert.match(labels, /Eggs/);
+  assert.match(labels, /Grains/);
+  assert.match(labels, /Beans & Legumes/);
+  assert.match(labels, /Vegetables/);
+  assert.match(labels, /Fruits/);
+  assert.match(labels, /Nuts & Seeds/);
+
+  // Search + category filter still compose
+  const searchSrc = read('src/data/reference/search.ts');
+  assert.match(searchSrc, /filterReferenceFoods/);
+  assert.match(searchSrc, /category && item\.category !== category/);
 
   const copy = read('src/screens/library/ReferenceCopyScreen.tsx');
   assert.match(copy, /scaleReferenceNutrition/);
@@ -146,6 +177,39 @@ const dataset = JSON.parse(
 
   // Planner untouched by this wiring check
   assert.match(read('src/data/planner/formulas.ts'), /Mifflin/);
+}
+
+{
+  // Category filter composition (mirrors filterReferenceFoods)
+  function filterReferenceFoods(items, { query = '', category = null } = {}) {
+    const q = query.trim().toLowerCase();
+    return items.filter((item) => {
+      if (category && item.category !== category) return false;
+      if (!q) return true;
+      const haystack = [item.name, item.displayName, item.state, item.category]
+        .join(' ')
+        .toLowerCase();
+      return q.split(/\s+/).every((token) => haystack.includes(token));
+    });
+  }
+  const all = filterReferenceFoods(dataset.items, {});
+  assert.equal(all.length, dataset.itemCount);
+  const veg = filterReferenceFoods(dataset.items, { category: 'vegetables' });
+  assert.ok(veg.length > 0 && veg.length < dataset.itemCount);
+  assert.ok(veg.every((i) => i.category === 'vegetables'));
+  const vegSearch = filterReferenceFoods(dataset.items, {
+    category: 'vegetables',
+    query: 'potato',
+  });
+  assert.ok(vegSearch.every((i) => i.category === 'vegetables'));
+  assert.ok(vegSearch.some((i) => /potato/i.test(i.displayName)));
+  const cleared = filterReferenceFoods(dataset.items, { category: null });
+  assert.equal(cleared.length, dataset.itemCount);
+  const empty = filterReferenceFoods(dataset.items, {
+    category: 'eggs',
+    query: 'zzzz-not-a-food',
+  });
+  assert.equal(empty.length, 0);
 }
 
 console.log('reference-library-smoke: ok');

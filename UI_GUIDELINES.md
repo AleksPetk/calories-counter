@@ -72,6 +72,7 @@ Personal catalog of library items. Setup cost lives here so Home stays fast.
 
 - **My Library** — user-created foods and meals (existing behavior).
 - **QuickCal Reference** — read-only USDA-backed raw / uncooked / dry ingredients (per 100 g). Copy into My Library to edit.
+- Compact **Category** selector under search (defaults to All); opens a bottom sheet — not a permanent multi-row chip row.
 
 Segmented control sits under the Library title and above search/list.
 

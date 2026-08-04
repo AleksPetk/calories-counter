@@ -13,13 +13,15 @@ import {
 } from 'react-native';
 
 import { LibraryItemCard } from '../components/LibraryItemCard';
+import {
+  ReferenceCategoryPicker,
+  referenceCategoryLabel,
+} from '../components/ReferenceCategoryPicker';
 import { ReferenceFoodCard } from '../components/ReferenceFoodCard';
 import { Screen } from '../components/Screen';
 import { SearchField } from '../components/SearchField';
 import { useData } from '../data/DataProvider';
 import {
-  REFERENCE_CATEGORIES,
-  REFERENCE_CATEGORY_LABELS,
   filterReferenceFoods,
   getAllReferenceFoods,
   getReferenceAttribution,
@@ -50,6 +52,7 @@ export function LibraryScreen() {
   const [segment, setSegment] = useState<LibrarySegment>('mine');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<ReferenceCategory | null>(null);
+  const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
   const [items, setItems] = useState<LibraryListItem[]>([]);
   const referenceFoods = useMemo(() => getAllReferenceFoods(), []);
 
@@ -112,32 +115,37 @@ export function LibraryScreen() {
           color: theme.textPrimary,
           fontWeight: '700',
         },
-        filters: {
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          gap: spacing.xs,
-          marginBottom: spacing.sm,
-        },
-        filterChip: {
-          borderRadius: radii.pill,
-          paddingHorizontal: spacing.sm + 2,
-          paddingVertical: 6,
+        categoryRow: {
+          marginTop: spacing.sm,
+          minHeight: 52,
+          borderRadius: radii.lg,
           backgroundColor: theme.surface,
           borderWidth: StyleSheet.hairlineWidth,
           borderColor: theme.border,
+          paddingHorizontal: spacing.md,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          ...theme.softShadow,
         },
-        filterChipActive: {
-          borderColor: theme.primary,
+        categoryRowPressed: {
           backgroundColor: theme.elevatedSurface,
         },
-        filterLabel: {
-          ...typography.micro,
-          color: theme.textSecondary,
-          fontWeight: '600',
+        categoryLabel: {
+          ...typography.body,
+          color: theme.textPrimary,
         },
-        filterLabelActive: {
-          color: theme.primary,
-          fontWeight: '700',
+        categoryRight: {
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: spacing.sm,
+          flexShrink: 1,
+        },
+        categoryValue: {
+          ...typography.caption,
+          color: theme.textSecondary,
+          maxWidth: 160,
+          textAlign: 'right',
         },
         list: {
           paddingTop: spacing.md,
@@ -234,6 +242,8 @@ export function LibraryScreen() {
     ]);
   };
 
+  const categoryValue = referenceCategoryLabel(category);
+
   return (
     <Screen>
       <View style={styles.header}>
@@ -270,10 +280,7 @@ export function LibraryScreen() {
       <View style={styles.segments}>
         <Pressable
           style={[styles.segment, segment === 'mine' && styles.segmentActive]}
-          onPress={() => {
-            setSegment('mine');
-            setCategory(null);
-          }}
+          onPress={() => setSegment('mine')}
           accessibilityRole="button"
           accessibilityState={{ selected: segment === 'mine' }}
         >
@@ -316,43 +323,28 @@ export function LibraryScreen() {
       />
 
       {segment === 'reference' ? (
-        <View style={styles.filters}>
-          <Pressable
-            style={[
-              styles.filterChip,
-              category == null && styles.filterChipActive,
-            ]}
-            onPress={() => setCategory(null)}
-          >
-            <Text
-              style={[
-                styles.filterLabel,
-                category == null && styles.filterLabelActive,
-              ]}
-            >
-              All
+        <Pressable
+          onPress={() => setCategoryPickerOpen(true)}
+          style={({ pressed }) => [
+            styles.categoryRow,
+            pressed && styles.categoryRowPressed,
+          ]}
+          accessibilityRole="button"
+          accessibilityLabel={`Category, ${categoryValue}`}
+          accessibilityHint="Opens category filter"
+        >
+          <Text style={styles.categoryLabel}>Category</Text>
+          <View style={styles.categoryRight}>
+            <Text style={styles.categoryValue} numberOfLines={1}>
+              {categoryValue}
             </Text>
-          </Pressable>
-          {REFERENCE_CATEGORIES.map((id) => (
-            <Pressable
-              key={id}
-              style={[
-                styles.filterChip,
-                category === id && styles.filterChipActive,
-              ]}
-              onPress={() => setCategory(id)}
-            >
-              <Text
-                style={[
-                  styles.filterLabel,
-                  category === id && styles.filterLabelActive,
-                ]}
-              >
-                {REFERENCE_CATEGORY_LABELS[id]}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
+            <Ionicons
+              name="chevron-forward"
+              size={18}
+              color={theme.textMuted}
+            />
+          </View>
+        </Pressable>
       ) : null}
 
       <ScrollView
@@ -402,12 +394,23 @@ export function LibraryScreen() {
               />
             ))}
             {visibleReference.length === 0 ? (
-              <Text style={styles.empty}>No matches</Text>
+              <Text style={styles.empty}>
+                {search.trim() || category
+                  ? 'No matching reference foods'
+                  : 'No reference foods'}
+              </Text>
             ) : null}
             <Text style={styles.attribution}>{getReferenceAttribution()}</Text>
           </>
         )}
       </ScrollView>
+
+      <ReferenceCategoryPicker
+        visible={categoryPickerOpen}
+        selected={category}
+        onSelect={setCategory}
+        onClose={() => setCategoryPickerOpen(false)}
+      />
     </Screen>
   );
 }
