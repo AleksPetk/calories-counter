@@ -112,6 +112,11 @@ venv/
 .mypy_cache/
 .ruff_cache/
 
+# USDA full dumps (curated JSON ships in src/data/reference/)
+scripts/reference-data/sr_legacy/
+scripts/reference-data/*.zip
+scripts/reference-data/curation-report.json
+
 # Test / coverage extras
 .nyc_output/
 *.lcov

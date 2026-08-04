@@ -1,6 +1,7 @@
 export type LibraryStackParamList = {
   LibraryHome: undefined;
   LibraryItemEditor: { itemId?: string } | undefined;
+  ReferenceCopy: { referenceId: string };
 };
 
 export type HomeStackParamList = {

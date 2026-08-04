@@ -42,6 +42,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
   assert.match(pages, /Calorie Planner/);
   assert.match(pages, /Estimates only — not medical advice/);
   assert.match(pages, /recalculate anytime/i);
+  assert.match(pages, /QuickCal Reference/);
   const modal = readFileSync(
     join(root, 'src/onboarding/OnboardingModal.tsx'),
     'utf8',

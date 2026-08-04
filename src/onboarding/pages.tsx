@@ -214,6 +214,7 @@ function LibraryContent() {
       <IconBadge name="bookmark-outline" />
       <View style={{ alignSelf: 'stretch', gap: spacing.sm }}>
         <Bullet>Build your own library.</Bullet>
+        <Bullet>Copy common raw ingredients from QuickCal Reference.</Bullet>
         <Bullet>No huge online food database.</Bullet>
         <Bullet>Your foods stay on your device.</Bullet>
         <Bullet>Pin favorites for even faster logging.</Bullet>

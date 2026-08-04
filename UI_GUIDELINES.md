@@ -68,6 +68,13 @@ Primary screen. Default landing after launch. Optimized for the fastest possible
 
 Personal catalog of library items. Setup cost lives here so Home stays fast.
 
+### Segments
+
+- **My Library** — user-created foods and meals (existing behavior).
+- **QuickCal Reference** — read-only USDA-backed raw / uncooked / dry ingredients (per 100 g). Copy into My Library to edit.
+
+Segmented control sits under the Library title and above search/list.
+
 ### Items
 
 - One unified list (no Foods / Meals tabs).

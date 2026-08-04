@@ -26,6 +26,13 @@ Logging tables are not cleared by this action.
 
 Release safety is `__DEV__` gating (UI + seed entry points).
 
+### QuickCal Reference Library (offline)
+
+- Bundled curated USDA SR Legacy ingredients (~150) under `src/data/reference/`.
+- Not inserted into SQLite until the user copies one into My Library.
+- Regenerate curated JSON via `scripts/reference-data/curate_reference_foods.py` after downloading USDA SR Legacy (see `src/data/reference/SOURCE.md`).
+- Do not commit the full USDA dump (`scripts/reference-data/sr_legacy/` is gitignored).
+
 ### History retention cleanup
 
 - Runs after DB init in `DataProvider`.

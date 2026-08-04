@@ -220,6 +220,16 @@ Do not mark complete until device verification.
 
 Do not mark complete until device verification.
 
+### Stage B — QuickCal Reference Library — Implemented (code)
+
+- Library segments: **My Library | QuickCal Reference**
+- Offline curated USDA SR Legacy (~150) raw/uncooked/dry ingredients per 100 g
+- Copy to My Library with proportional portion scaling; reference remains read-only
+- Bundled JSON separate from SQLite; not included in backups; Erase All does not remove it
+- Attribution in-app + `src/data/reference/SOURCE.md`
+
+Do not mark complete until device verification.
+
 ### Stage 10 — Release
 
 - Store assets
@@ -254,6 +264,7 @@ src/
     images/             # Persist/delete library photos
     backup/             # Local ZIP export/import (no entitlement)
     planner/            # Calorie Planner pure math (Mifflin–St Jeor pack)
+    reference/          # Bundled USDA QuickCal Reference foods (offline JSON)
     library/            # Pin-limit helpers
     logging/            # Active day, totals, log create/undo helpers
     history/            # Retention purge helpers

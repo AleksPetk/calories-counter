@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { LibraryItemEditorScreen } from '../screens/library/LibraryItemEditorScreen';
+import { ReferenceCopyScreen } from '../screens/library/ReferenceCopyScreen';
 import { LibraryScreen } from '../screens/LibraryScreen';
 import { useTheme } from '../theme/ThemeProvider';
 import { LibraryStackParamList } from './types';
@@ -28,6 +29,11 @@ export function LibraryNavigator() {
         name="LibraryItemEditor"
         component={LibraryItemEditorScreen}
         options={{ title: 'Item' }}
+      />
+      <Stack.Screen
+        name="ReferenceCopy"
+        component={ReferenceCopyScreen}
+        options={{ title: 'Copy to My Library' }}
       />
     </Stack.Navigator>
   );
