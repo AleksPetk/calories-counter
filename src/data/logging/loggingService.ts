@@ -119,14 +119,22 @@ export async function logLibraryPortionItem(
   });
 }
 
-export async function undoLastLogForActiveDay(
+/** Peek at the latest active-day log without deleting it. */
+export async function getLastLogForActiveDay(
   repositories: DataRepositories,
   options?: { settings?: Settings; now?: Date },
 ): Promise<DailyLogEntry | null> {
   const settings = await resolveSettings(repositories, options?.settings);
   const now = options?.now ?? new Date();
   const date = getActiveDayKey(now, settings.resetTime);
-  const latest = await repositories.dailyLogEntries.getLatestByDate(date);
+  return repositories.dailyLogEntries.getLatestByDate(date);
+}
+
+export async function undoLastLogForActiveDay(
+  repositories: DataRepositories,
+  options?: { settings?: Settings; now?: Date },
+): Promise<DailyLogEntry | null> {
+  const latest = await getLastLogForActiveDay(repositories, options);
   if (!latest) {
     return null;
   }

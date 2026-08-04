@@ -10,6 +10,10 @@ import {
   DEFAULT_DAILY_GOAL,
   DEFAULT_RESET_TIME,
 } from '../constants';
+import {
+  exportBackupViaShareSheet,
+  runBackupImportFlow,
+} from '../data/backup';
 import { useData } from '../data/DataProvider';
 import { eraseAllData } from '../data/erase/eraseAllData';
 import { labelForRetentionDays } from '../data/history/historyRetention';
@@ -61,6 +65,7 @@ export function SettingsScreen() {
     refreshLocal,
   } = useEntitlement();
   const [reseeding, setReseeding] = useState(false);
+  const [backupBusy, setBackupBusy] = useState(false);
 
   const goal = settings?.dailyGoal ?? DEFAULT_DAILY_GOAL;
   const resetTime = settings?.resetTime ?? DEFAULT_RESET_TIME;
@@ -190,6 +195,48 @@ export function SettingsScreen() {
     );
   };
 
+  const onExportBackup = async () => {
+    if (!repositories || backupBusy) {
+      return;
+    }
+    setBackupBusy(true);
+    try {
+      await exportBackupViaShareSheet({ repositories });
+    } catch (error) {
+      Alert.alert(
+        'Export failed',
+        error instanceof Error ? error.message : String(error),
+      );
+    } finally {
+      setBackupBusy(false);
+    }
+  };
+
+  const onImportBackup = async () => {
+    if (!repositories || backupBusy) {
+      return;
+    }
+    setBackupBusy(true);
+    try {
+      await runBackupImportFlow({
+        repositories,
+        onSuccess: async (nextThemeId) => {
+          await reloadSettings();
+          await refreshLocal();
+          await setThemeId(resolveTheme(nextThemeId).id);
+          refresh();
+        },
+      });
+    } catch (error) {
+      Alert.alert(
+        'Import failed',
+        error instanceof Error ? error.message : String(error),
+      );
+    } finally {
+      setBackupBusy(false);
+    }
+  };
+
   const onRestore = async () => {
     const result = await restore();
     if (result === 'restored') {
@@ -286,6 +333,25 @@ export function SettingsScreen() {
                 />
               </>
             ) : null}
+          </View>
+        </View>
+
+        <View>
+          <Text style={styles.sectionLabel}>Backup</Text>
+          <View style={styles.group}>
+            <SettingsRow
+              label={backupBusy ? 'Working…' : 'Export Backup'}
+              onPress={() => {
+                void onExportBackup();
+              }}
+            />
+            <SettingsRow
+              label={backupBusy ? 'Working…' : 'Import Backup'}
+              onPress={() => {
+                void onImportBackup();
+              }}
+              isLast
+            />
           </View>
         </View>
 

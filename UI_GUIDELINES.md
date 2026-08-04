@@ -118,6 +118,7 @@ Opened from the Home calorie card (and any other approved entry points). Shows w
 - Edit opens a focused editor.
 - Delete uses confirmation.
 - **Undo last log** is available on Home and Today’s Log for the active day.
+- Undo always shows a confirmation dialog (food/meal name, calories, portion when available) with **Cancel** and **Remove**. No automatic undo.
 
 ### Instant recalculation
 
@@ -153,6 +154,12 @@ Opened from the Home calorie card (and any other approved entry points). Shows w
 - Past days are editable (add / edit / delete entries).
 - Changes recalculate that day’s totals immediately.
 - Crossing the day-reset boundary must remain understandable when viewing “today” vs calendar dates.
+
+### Day summary card
+
+- Collapsed: day label, date key, calorie total.
+- Tap center to expand: Calories, Protein, Carbs, Fat (missing macros count as 0).
+- Smooth expand/collapse animation; keep the compact premium card chrome.
 
 ---
 
@@ -192,6 +199,15 @@ Opened from the Home calorie card (and any other approved entry points). Shows w
 - Show trial / purchased / locked state clearly.
 - Path to purchase or restore when applicable.
 - No aggressive paywall chrome on primary logging surfaces beyond what product requires.
+
+### Backup & Restore
+
+- **Export Backup** creates one local ZIP (`backup.json` + `images/`) and opens the system share sheet (Files / iCloud Drive / AirDrop).
+- **Import Backup** picks a ZIP, shows backup date + app version, then confirms: “This will replace your current local QuickCal data.”
+- Import replaces library, history, settings (goal / reset / retention / theme / tutorial), and images.
+- StoreKit purchases / entitlement are **never** exported or imported; restore purchases via Apple Restore Purchase.
+- Missing or corrupt images are skipped; import still succeeds for the rest of the data.
+- Tutorial includes a Backup & Restore page explaining export, import, and separate purchase restore.
 
 ### About
 

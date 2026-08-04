@@ -41,6 +41,7 @@
           "photosPermission": "Allow QuickCal to attach photos to foods and meals."
         }
       ],
+      "expo-document-picker",
       "expo-iap",
       "expo-dev-client",
       "expo-font"

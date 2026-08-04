@@ -4,6 +4,24 @@ export function sumCalories(entries: DailyLogEntry[]): number {
   return entries.reduce((total, entry) => total + entry.calories, 0);
 }
 
+export type DayMacroTotals = {
+  protein: number;
+  carbs: number;
+  fat: number;
+};
+
+/** Day totals; missing macros count as 0. */
+export function sumMacros(entries: DailyLogEntry[]): DayMacroTotals {
+  return entries.reduce<DayMacroTotals>(
+    (totals, entry) => ({
+      protein: totals.protein + (entry.protein ?? 0),
+      carbs: totals.carbs + (entry.carbs ?? 0),
+      fat: totals.fat + (entry.fat ?? 0),
+    }),
+    { protein: 0, carbs: 0, fat: 0 },
+  );
+}
+
 export type DayCalorieSummary = {
   goal: number;
   consumed: number;

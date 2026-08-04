@@ -1,12 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMemo } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import type { LibraryListItem } from '../types';
 import { radii } from '../theme/radii';
 import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
 import { useTheme } from '../theme/ThemeProvider';
+import { LibraryThumbnail } from './LibraryThumbnail';
 
 type LibraryItemCardProps = {
   item: LibraryListItem;
@@ -40,10 +41,6 @@ export function LibraryItemCard({
         },
         pressed: { opacity: 0.92 },
         thumbnail: {
-          width: 44,
-          height: 44,
-          borderRadius: radii.md,
-          backgroundColor: theme.thumbnail,
           marginRight: spacing.md,
         },
         main: { flex: 1, paddingRight: spacing.sm },
@@ -100,15 +97,12 @@ export function LibraryItemCard({
       accessibilityLabel={`${item.name}, ${Math.round(item.calories)} calories, ${item.loggingMode === 'quick' ? 'Quick Log' : 'Portion'}`}
       accessibilityHint="Long press to delete"
     >
-      {item.image ? (
-        <Image
-          source={{ uri: item.image }}
-          style={styles.thumbnail}
-          accessibilityIgnoresInvertColors
-        />
-      ) : (
-        <View style={styles.thumbnail} />
-      )}
+      <LibraryThumbnail
+        uri={item.image}
+        size={44}
+        borderRadius={radii.md}
+        style={styles.thumbnail}
+      />
       <View style={styles.main}>
         <View style={styles.nameRow}>
           <Text style={styles.name} numberOfLines={1}>

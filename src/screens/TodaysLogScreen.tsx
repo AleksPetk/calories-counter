@@ -15,7 +15,10 @@ import { DEFAULT_RESET_TIME } from '../constants';
 import { useData } from '../data/DataProvider';
 import { useEntitlement } from '../entitlement';
 import { getActiveDayKey } from '../data/logging/activeDay';
-import { undoLastLogForActiveDay } from '../data/logging/loggingService';
+import {
+  getLastLogForActiveDay,
+  undoLastLogForActiveDay,
+} from '../data/logging/loggingService';
 import { HomeStackParamList } from '../navigation/types';
 import type { DailyLogEntry } from '../types';
 import { radii } from '../theme/radii';
@@ -50,6 +53,11 @@ function formatMacros(entry: DailyLogEntry): string | null {
 
 function round(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(1);
+}
+
+function buildUndoBody(entry: DailyLogEntry): string {
+  const portionLine = entry.portion != null ? `\n×${entry.portion}` : '';
+  return `Are you sure you want to remove:\n\n${entry.foodNameSnapshot}\n${Math.round(entry.calories)} kcal${portionLine}`;
 }
 
 export function TodaysLogScreen() {
@@ -168,14 +176,33 @@ export function TodaysLogScreen() {
     if (!repositories) {
       return;
     }
-    const removed = await undoLastLogForActiveDay(repositories, {
+    const latest = await getLastLogForActiveDay(repositories, {
       settings: settings ?? undefined,
     });
-    if (!removed) {
+    if (!latest) {
       Alert.alert('Nothing to undo', 'No entries logged for today yet.');
       return;
     }
-    refresh();
+    Alert.alert('Undo last log?', buildUndoBody(latest), [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Remove',
+        style: 'destructive',
+        onPress: async () => {
+          if (!repositories) {
+            return;
+          }
+          const removed = await undoLastLogForActiveDay(repositories, {
+            settings: settings ?? undefined,
+          });
+          if (!removed) {
+            Alert.alert('Nothing to undo', 'No entries logged for today yet.');
+            return;
+          }
+          refresh();
+        },
+      },
+    ]);
   };
 
   return (

@@ -17,6 +17,7 @@ export type OnboardingPageId =
   | 'library'
   | 'themes'
   | 'privacy'
+  | 'backup'
   | 'trial';
 
 export type OnboardingPage = {
@@ -248,6 +249,23 @@ function PrivacyContent() {
   );
 }
 
+function BackupContent() {
+  return (
+    <View style={{ alignItems: 'center', width: '100%' }}>
+      <IconBadge name="cloud-download-outline" />
+      <View style={{ alignSelf: 'stretch', gap: spacing.sm }}>
+        <Bullet>Export saves all your local data.</Bullet>
+        <Bullet>
+          Import restores everything after reinstall or moving devices.
+        </Bullet>
+        <Bullet>
+          Purchases are restored separately using Apple Restore Purchase.
+        </Bullet>
+      </View>
+    </View>
+  );
+}
+
 function TrialContent() {
   return (
     <View style={{ alignItems: 'center', width: '100%' }}>
@@ -292,6 +310,12 @@ export const ONBOARDING_PAGES: OnboardingPage[] = [
     title: 'Privacy & Offline',
     subtitle: 'Built to stay private by design.',
     Content: PrivacyContent,
+  },
+  {
+    id: 'backup',
+    title: 'Backup & Restore',
+    subtitle: 'Keep a local copy of your library and history.',
+    Content: BackupContent,
   },
   {
     id: 'trial',

@@ -53,7 +53,7 @@ The product succeeds when a frequent meal can be logged in under two seconds, th
 - Social features
 - Recipes with multi-step cooking
 - Wearables / HealthKit sync (candidate for later)
-- Accounts, sync, or backup (candidate for later)
+- Accounts or cloud sync (candidate for later)
 - Charts beyond a simple daily total / short history
 - AI meal recognition
 - Water, steps, weight coaching suites
@@ -64,8 +64,8 @@ The product succeeds when a frequent meal can be logged in under two seconds, th
 
 Prioritized roughly by how well they support the speed/offline philosophy:
 
-1. **Export / backup** — local export (JSON/CSV) or optional encrypted backup.
-2. **Optional cloud sync** — same user across devices; still offline-first.
+1. **Optional cloud sync** — same user across devices; still offline-first.
+2. **Encrypted backups** — optional passphrase on the local ZIP export.
 3. **Macros & goals** — daily calorie/macro targets with simple progress.
 4. **Templates / meal slots** — breakfast/lunch/dinner shortcuts if they reduce taps.
 5. **Portion presets** — “usual amount” per ingredient for even faster logging.
@@ -195,12 +195,16 @@ Do not mark complete until device verification.
 
 Do not mark complete until device + sandbox verification.
 
-### Stage 9 — Long Polish Phase
+### Stage 9 — UX Fixes, Backup, History Polish — Implemented (code)
 
-- Testing
-- Accessibility
-- Performance
-- UX and speed polish across core flows
+- Library / Home list thumbnails share the same image component as pins
+- Undo Last requires confirmation (Cancel / Remove)
+- History day summary expands to Calories / Protein / Carbs / Fat
+- Local ZIP backup & restore (Settings → Export / Import); no cloud/accounts
+- StoreKit / entitlement **not** included in backups (Apple Restore separately)
+- Tutorial page for Backup & Restore
+
+Do not mark complete until device verification.
 
 ### Stage 10 — Release
 
@@ -232,8 +236,9 @@ src/
   types/                # Domain TypeScript models
   data/
     database/           # open, schema, migrate, mappers
-    repositories/       # LibraryItem, DailyLogEntry, Profile, Settings
-    images/             # Persist/delete library + profile photos
+    repositories/       # LibraryItem, DailyLogEntry, Settings, Entitlement
+    images/             # Persist/delete library photos
+    backup/             # Local ZIP export/import (no entitlement)
     library/            # Pin-limit helpers
     logging/            # Active day, totals, log create/undo helpers
     history/            # Retention purge helpers
@@ -248,11 +253,12 @@ src/
 |-------|---------|
 | `library_items` | Unified user library (Quick Log or Portion mode) |
 | `daily_log_entries` | Per-day logged intake snapshots |
-| `profile` | Single-row user profile |
 | `settings` | Single-row app settings |
+| `entitlement` | Trial clock + store purchase cache (not erased / not backed up) |
 
 Legacy notes:
 - Pre-v3 `foods` / `meals` / `meal_items` are migrated into `library_items` then dropped.
+- Legacy `profile` table may still exist; unused by product UI. Backup may round-trip it if present.
 - Historical log `source_type` values `food` / `meal` / `quick` remain; new library logs use `library`.
 
 Relationships:

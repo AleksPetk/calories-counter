@@ -103,4 +103,33 @@ export class LibraryItemRepository {
   async delete(id: string): Promise<void> {
     await this.db.runAsync(`DELETE FROM library_items WHERE id = ?`, id);
   }
+
+  /** Deletes every library item (Erase All / backup restore). */
+  async deleteAll(): Promise<void> {
+    await this.db.runAsync(`DELETE FROM library_items`);
+  }
+
+  /**
+   * Inserts a full row including stable id and timestamps.
+   * Used by backup restore — does not generate new ids/timestamps.
+   */
+  async insertFull(item: LibraryItem): Promise<void> {
+    await this.db.runAsync(
+      `INSERT INTO library_items (
+        id, name, calories, protein, carbs, fat, image, pinned,
+        logging_mode, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      item.id,
+      item.name,
+      item.calories,
+      item.protein,
+      item.carbs,
+      item.fat,
+      item.image,
+      boolToInt(item.pinned),
+      item.loggingMode,
+      item.createdAt,
+      item.updatedAt,
+    );
+  }
 }

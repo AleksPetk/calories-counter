@@ -19,6 +19,14 @@ export class DailyLogEntryRepository {
     return rows.map(mapDailyLogEntry);
   }
 
+  /** All history entries, oldest first (backup export). */
+  async getAllOrdered(): Promise<DailyLogEntry[]> {
+    const rows = await this.db.getAllAsync<DailyLogEntryRow>(
+      `SELECT * FROM daily_log_entries ORDER BY date ASC, time ASC`,
+    );
+    return rows.map(mapDailyLogEntry);
+  }
+
   async getLatestByDate(date: string): Promise<DailyLogEntry | null> {
     const row = await this.db.getFirstAsync<DailyLogEntryRow>(
       `SELECT * FROM daily_log_entries WHERE date = ? ORDER BY time DESC LIMIT 1`,
@@ -59,6 +67,30 @@ export class DailyLogEntryRepository {
       throw new Error(`Failed to create daily log entry ${id}`);
     }
     return created;
+  }
+
+  /**
+   * Inserts a full log row including stable id.
+   * Used by backup restore.
+   */
+  async insertFull(entry: DailyLogEntry): Promise<void> {
+    await this.db.runAsync(
+      `INSERT INTO daily_log_entries (
+        id, date, time, source_type, source_id, calories,
+        protein, carbs, fat, food_name_snapshot, portion
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      entry.id,
+      entry.date,
+      entry.time,
+      entry.sourceType,
+      entry.sourceId,
+      entry.calories,
+      entry.protein,
+      entry.carbs,
+      entry.fat,
+      entry.foodNameSnapshot,
+      entry.portion,
+    );
   }
 
   async update(id: string, patch: DailyLogEntryUpdate): Promise<DailyLogEntry> {

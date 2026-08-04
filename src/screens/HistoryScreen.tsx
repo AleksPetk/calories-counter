@@ -4,10 +4,13 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Alert,
+  LayoutAnimation,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  UIManager,
   View,
 } from 'react-native';
 
@@ -17,13 +20,20 @@ import { useData } from '../data/DataProvider';
 import { useEntitlement } from '../entitlement';
 import { getActiveDayKey } from '../data/logging/activeDay';
 import { shiftDateKey } from '../data/history/historyRetention';
-import { sumCalories } from '../data/logging/logMath';
+import { sumCalories, sumMacros } from '../data/logging/logMath';
 import { HistoryStackParamList } from '../navigation/types';
 import type { DailyLogEntry } from '../types';
 import { radii } from '../theme/radii';
 import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
 import { useTheme } from '../theme/ThemeProvider';
+
+if (
+  Platform.OS === 'android' &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 function formatLogTime(iso: string): string {
   const date = new Date(iso);
@@ -48,7 +58,11 @@ function formatDayLabel(dateKey: string, activeDayKey: string): string {
   if (!match) {
     return dateKey;
   }
-  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  const date = new Date(
+    Number(match[1]),
+    Number(match[2]) - 1,
+    Number(match[3]),
+  );
   return date.toLocaleDateString(undefined, {
     weekday: 'short',
     month: 'short',
@@ -75,6 +89,10 @@ function round(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(1);
 }
 
+function formatMacroGrams(value: number): string {
+  return `${round(value)} g`;
+}
+
 export function HistoryScreen() {
   const theme = useTheme();
   const navigation =
@@ -85,10 +103,15 @@ export function HistoryScreen() {
   const activeDayKey = getActiveDayKey(new Date(), resetTime);
   const [selectedDay, setSelectedDay] = useState(activeDayKey);
   const [entries, setEntries] = useState<DailyLogEntry[]>([]);
+  const [summaryExpanded, setSummaryExpanded] = useState(false);
 
   useEffect(() => {
     setSelectedDay(activeDayKey);
   }, [activeDayKey]);
+
+  useEffect(() => {
+    setSummaryExpanded(false);
+  }, [selectedDay]);
 
   const styles = useMemo(
     () =>
@@ -124,6 +147,7 @@ export function HistoryScreen() {
         dateCenter: {
           flex: 1,
           alignItems: 'center',
+          paddingHorizontal: spacing.xs,
         },
         dateLabel: {
           ...typography.caption,
@@ -138,6 +162,34 @@ export function HistoryScreen() {
           ...typography.section,
           color: theme.textPrimary,
           marginTop: 2,
+        },
+        expandHint: {
+          ...typography.micro,
+          color: theme.textMuted,
+          marginTop: 4,
+        },
+        expandedBlock: {
+          alignSelf: 'stretch',
+          marginTop: spacing.sm,
+          gap: spacing.xs,
+          paddingTop: spacing.sm,
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: theme.border,
+        },
+        macroRow: {
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'baseline',
+          width: '100%',
+          paddingHorizontal: spacing.sm,
+        },
+        macroLabel: {
+          ...typography.caption,
+          color: theme.textSecondary,
+        },
+        macroValue: {
+          ...typography.bodyBold,
+          color: theme.textPrimary,
         },
         list: {
           paddingBottom: spacing.xxl,
@@ -206,7 +258,13 @@ export function HistoryScreen() {
   }, [load]);
 
   const total = sumCalories(entries);
+  const macros = sumMacros(entries);
   const canGoNext = selectedDay < activeDayKey;
+
+  const toggleSummary = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setSummaryExpanded((value) => !value);
+  };
 
   const onDelete = (entry: DailyLogEntry) => {
     if (!requireWriteAccess()) {
@@ -242,13 +300,53 @@ export function HistoryScreen() {
           <Ionicons name="chevron-back" size={20} color={theme.textPrimary} />
         </Pressable>
 
-        <View style={styles.dateCenter}>
+        <Pressable
+          style={styles.dateCenter}
+          onPress={toggleSummary}
+          accessibilityRole="button"
+          accessibilityLabel={
+            summaryExpanded
+              ? 'Collapse day nutrition summary'
+              : 'Expand day nutrition summary'
+          }
+          accessibilityState={{ expanded: summaryExpanded }}
+        >
           <Text style={styles.dateLabel}>
             {formatDayLabel(selectedDay, activeDayKey)}
           </Text>
           <Text style={styles.dateKey}>{selectedDay}</Text>
-          <Text style={styles.total}>{Math.round(total)} kcal</Text>
-        </View>
+          {!summaryExpanded ? (
+            <Text style={styles.total}>{Math.round(total)} kcal</Text>
+          ) : (
+            <View style={styles.expandedBlock}>
+              <View style={styles.macroRow}>
+                <Text style={styles.macroLabel}>Calories</Text>
+                <Text style={styles.macroValue}>{Math.round(total)} kcal</Text>
+              </View>
+              <View style={styles.macroRow}>
+                <Text style={styles.macroLabel}>Protein</Text>
+                <Text style={styles.macroValue}>
+                  {formatMacroGrams(macros.protein)}
+                </Text>
+              </View>
+              <View style={styles.macroRow}>
+                <Text style={styles.macroLabel}>Carbs</Text>
+                <Text style={styles.macroValue}>
+                  {formatMacroGrams(macros.carbs)}
+                </Text>
+              </View>
+              <View style={styles.macroRow}>
+                <Text style={styles.macroLabel}>Fat</Text>
+                <Text style={styles.macroValue}>
+                  {formatMacroGrams(macros.fat)}
+                </Text>
+              </View>
+            </View>
+          )}
+          <Text style={styles.expandHint}>
+            {summaryExpanded ? 'Tap to collapse' : 'Tap for macros'}
+          </Text>
+        </Pressable>
 
         <Pressable
           style={[styles.navButton, !canGoNext && styles.navDisabled]}
@@ -275,7 +373,7 @@ export function HistoryScreen() {
         contentContainerStyle={styles.list}
       >
         {entries.map((entry) => {
-          const macros = formatMacros(entry);
+          const entryMacros = formatMacros(entry);
           return (
             <View key={entry.id} style={styles.row}>
               <View style={styles.top}>
@@ -288,7 +386,9 @@ export function HistoryScreen() {
                 {formatLogTime(entry.time)}
                 {entry.portion != null ? ` · ×${entry.portion}` : ''}
               </Text>
-              {macros ? <Text style={styles.meta}>{macros}</Text> : null}
+              {entryMacros ? (
+                <Text style={styles.meta}>{entryMacros}</Text>
+              ) : null}
               <View style={styles.actions}>
                 <Pressable
                   onPress={() => {

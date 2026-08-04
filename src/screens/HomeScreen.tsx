@@ -19,6 +19,7 @@ import {
   FormKeyboardScroll,
   FormTextInput,
 } from '../components/FormKeyboardScroll';
+import { LibraryThumbnail } from '../components/LibraryThumbnail';
 import { PinGrid } from '../components/PinGrid';
 import { PortionPickerSheet } from '../components/PortionPickerSheet';
 import { PrimaryButton } from '../components/PrimaryButton';
@@ -44,6 +45,7 @@ import {
   sumCalories,
 } from '../data/logging/logMath';
 import {
+  getLastLogForActiveDay,
   logLibraryPortionItem,
   logLibraryQuickItem,
   logQuickEntry,
@@ -191,10 +193,6 @@ export function HomeScreen() {
         },
         resultPressed: { opacity: 0.92 },
         resultThumb: {
-          width: 40,
-          height: 40,
-          borderRadius: radii.sm,
-          backgroundColor: theme.thumbnail,
           marginRight: spacing.md,
         },
         resultCopy: { flex: 1 },
@@ -372,20 +370,50 @@ export function HomeScreen() {
     if (!requireWriteAccess()) {
       return;
     }
-    void withLogLock(async () => {
+    void (async () => {
       if (!repositories) {
         return;
       }
-      const removed = await undoLastLogForActiveDay(repositories, {
+      const latest = await getLastLogForActiveDay(repositories, {
         settings: settings ?? undefined,
       });
-      if (!removed) {
+      if (!latest) {
         Alert.alert('Nothing to undo', 'No entries logged for today yet.');
         return;
       }
-      refresh();
-      showToast(`Undone · ${removed.foodNameSnapshot}`);
-    });
+      const portionLine =
+        latest.portion != null ? `\n×${latest.portion}` : '';
+      Alert.alert(
+        'Undo last log?',
+        `Are you sure you want to remove:\n\n${latest.foodNameSnapshot}\n${Math.round(latest.calories)} kcal${portionLine}`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Remove',
+            style: 'destructive',
+            onPress: () => {
+              void withLogLock(async () => {
+                if (!repositories) {
+                  return;
+                }
+                const removed = await undoLastLogForActiveDay(repositories, {
+                  settings: settings ?? undefined,
+                });
+                if (!removed) {
+                  Alert.alert(
+                    'Nothing to undo',
+                    'No entries logged for today yet.',
+                  );
+                  return;
+                }
+                refresh();
+                showToast(`Undone · ${removed.foodNameSnapshot}`);
+              });
+            },
+          },
+        ],
+      );
+    })();
   };
 
   const filteredResults = !search.trim()
@@ -515,7 +543,12 @@ export function HomeScreen() {
               accessibilityRole="button"
               accessibilityLabel={`Log ${item.name}`}
             >
-              <View style={styles.resultThumb} />
+              <LibraryThumbnail
+                uri={item.image}
+                size={40}
+                borderRadius={radii.sm}
+                style={styles.resultThumb}
+              />
               <View style={styles.resultCopy}>
                 <Text style={styles.resultName}>{item.name}</Text>
                 <Text style={styles.resultMeta}>

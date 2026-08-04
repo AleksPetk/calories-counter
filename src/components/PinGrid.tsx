@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import {
-  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -13,6 +12,7 @@ import { radii } from '../theme/radii';
 import { spacing } from '../theme/spacing';
 import { typography } from '../theme/typography';
 import { useTheme } from '../theme/ThemeProvider';
+import { LibraryThumbnail } from './LibraryThumbnail';
 
 type PinGridProps = {
   items: LibraryListItem[];
@@ -54,10 +54,6 @@ export function PinGrid({ items, onPressItem }: PinGridProps) {
           transform: [{ scale: 0.98 }],
         },
         thumbnail: {
-          width: 28,
-          height: 28,
-          borderRadius: radii.sm - 2,
-          backgroundColor: theme.thumbnail,
           marginBottom: spacing.xs + 2,
         },
         badge: {
@@ -104,11 +100,12 @@ export function PinGrid({ items, onPressItem }: PinGridProps) {
           accessibilityRole="button"
           accessibilityLabel={item.name}
         >
-          {item.image ? (
-            <Image source={{ uri: item.image }} style={styles.thumbnail} />
-          ) : (
-            <View style={styles.thumbnail} />
-          )}
+          <LibraryThumbnail
+            uri={item.image}
+            size={28}
+            borderRadius={radii.sm - 2}
+            style={styles.thumbnail}
+          />
           <View style={styles.badge}>
             <Text style={styles.badgeText}>
               {item.loggingMode === 'quick' ? 'Quick' : 'Portion'}
