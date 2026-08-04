@@ -21,6 +21,8 @@ export type SettingsStackParamList = {
   DailyGoalEditor: undefined;
   ResetTimeEditor: undefined;
   RetentionPicker: undefined;
+  CaloriePlanner: undefined;
+  PlannerQuestionnaire: undefined;
 };
 
 export type RootTabParamList = {

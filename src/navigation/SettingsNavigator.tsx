@@ -1,5 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import { CaloriePlannerScreen } from '../screens/planner/CaloriePlannerScreen';
+import { PlannerQuestionnaireScreen } from '../screens/planner/PlannerQuestionnaireScreen';
 import { AppInformationScreen } from '../screens/settings/AppInformationScreen';
 import { DailyGoalEditorScreen } from '../screens/settings/DailyGoalEditorScreen';
 import { ResetTimeEditorScreen } from '../screens/settings/ResetTimeEditorScreen';
@@ -41,7 +43,7 @@ export function SettingsNavigator() {
       <Stack.Screen
         name="DailyGoalEditor"
         component={DailyGoalEditorScreen}
-        options={{ title: 'Daily calorie goal' }}
+        options={{ title: 'Daily goals' }}
       />
       <Stack.Screen
         name="ResetTimeEditor"
@@ -52,6 +54,16 @@ export function SettingsNavigator() {
         name="RetentionPicker"
         component={RetentionPickerScreen}
         options={{ title: 'History retention' }}
+      />
+      <Stack.Screen
+        name="CaloriePlanner"
+        component={CaloriePlannerScreen}
+        options={{ title: 'Calorie Planner' }}
+      />
+      <Stack.Screen
+        name="PlannerQuestionnaire"
+        component={PlannerQuestionnaireScreen}
+        options={{ title: 'Questionnaire' }}
       />
     </Stack.Navigator>
   );

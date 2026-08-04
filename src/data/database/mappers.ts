@@ -39,6 +39,9 @@ export type DailyLogEntryRow = {
 export type SettingsRow = {
   id: number;
   daily_goal: number;
+  protein_goal: number | null;
+  carbs_goal: number | null;
+  fat_goal: number | null;
   reset_time: string;
   history_retention: number | null;
   tutorial_seen: number;
@@ -87,6 +90,9 @@ export function mapSettings(row: SettingsRow): Settings {
   return {
     id: row.id,
     dailyGoal: row.daily_goal,
+    proteinGoal: row.protein_goal ?? null,
+    carbsGoal: row.carbs_goal ?? null,
+    fatGoal: row.fat_goal ?? null,
     resetTime: row.reset_time,
     historyRetention: row.history_retention,
     tutorialSeen: intToBool(row.tutorial_seen),

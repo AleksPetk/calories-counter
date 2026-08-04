@@ -1,9 +1,11 @@
+import { CaloriePlanRepository } from './CaloriePlanRepository';
 import { DailyLogEntryRepository } from './DailyLogEntryRepository';
 import { EntitlementRepository } from './EntitlementRepository';
 import { LibraryItemRepository } from './LibraryItemRepository';
 import { SettingsRepository } from './SettingsRepository';
 
 export {
+  CaloriePlanRepository,
   DailyLogEntryRepository,
   EntitlementRepository,
   LibraryItemRepository,
@@ -15,4 +17,5 @@ export type DataRepositories = {
   dailyLogEntries: DailyLogEntryRepository;
   settings: SettingsRepository;
   entitlement: EntitlementRepository;
+  caloriePlan: CaloriePlanRepository;
 };

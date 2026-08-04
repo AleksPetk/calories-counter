@@ -73,6 +73,11 @@ function validateManifest(raw: unknown): BackupManifest {
   }
 
   const dailyGoal = settings.dailyGoal;
+  const proteinGoal =
+    settings.proteinGoal === undefined ? null : settings.proteinGoal;
+  const carbsGoal =
+    settings.carbsGoal === undefined ? null : settings.carbsGoal;
+  const fatGoal = settings.fatGoal === undefined ? null : settings.fatGoal;
   const resetTime = settings.resetTime;
   const historyRetention = settings.historyRetention;
   const tutorialSeen = settings.tutorialSeen;
@@ -80,6 +85,15 @@ function validateManifest(raw: unknown): BackupManifest {
 
   if (typeof dailyGoal !== 'number' || !Number.isFinite(dailyGoal)) {
     throw new Error('Backup settings.dailyGoal is invalid');
+  }
+  if (proteinGoal !== null && typeof proteinGoal !== 'number') {
+    throw new Error('Backup settings.proteinGoal is invalid');
+  }
+  if (carbsGoal !== null && typeof carbsGoal !== 'number') {
+    throw new Error('Backup settings.carbsGoal is invalid');
+  }
+  if (fatGoal !== null && typeof fatGoal !== 'number') {
+    throw new Error('Backup settings.fatGoal is invalid');
   }
   if (typeof resetTime !== 'string') {
     throw new Error('Backup settings.resetTime is invalid');
@@ -98,6 +112,13 @@ function validateManifest(raw: unknown): BackupManifest {
     throw new Error('Backup settings.themeId is invalid');
   }
 
+  const caloriePlan =
+    data.caloriePlan === undefined
+      ? null
+      : data.caloriePlan === null
+        ? null
+        : (data.caloriePlan as BackupManifest['caloriePlan']);
+
   return {
     format: BACKUP_FORMAT,
     formatVersion: data.formatVersion,
@@ -109,6 +130,9 @@ function validateManifest(raw: unknown): BackupManifest {
     dailyLogEntries: data.dailyLogEntries,
     settings: {
       dailyGoal,
+      proteinGoal: proteinGoal as number | null,
+      carbsGoal: carbsGoal as number | null,
+      fatGoal: fatGoal as number | null,
       resetTime,
       historyRetention:
         historyRetention === undefined ? null : historyRetention,
@@ -116,6 +140,7 @@ function validateManifest(raw: unknown): BackupManifest {
       themeId,
     },
     profile: data.profile ?? null,
+    caloriePlan,
   };
 }
 
@@ -358,12 +383,45 @@ export async function applyBackupImport(options: {
 
       await repositories.settings.update({
         dailyGoal: manifest.settings.dailyGoal,
+        proteinGoal: manifest.settings.proteinGoal,
+        carbsGoal: manifest.settings.carbsGoal,
+        fatGoal: manifest.settings.fatGoal,
         resetTime: manifest.settings.resetTime,
         historyRetention: manifest.settings.historyRetention,
         tutorialSeen: manifest.settings.tutorialSeen,
         themeId: manifest.settings.themeId,
         purchaseState,
       });
+
+      await repositories.caloriePlan.clear();
+      if (manifest.caloriePlan) {
+        const plan = manifest.caloriePlan;
+        await repositories.caloriePlan.upsert({
+          sex: plan.sex,
+          age: plan.age,
+          heightCm: plan.heightCm,
+          weightKg: plan.weightKg,
+          unitPref: plan.unitPref,
+          activity: plan.activity,
+          training: plan.training,
+          goal: plan.goal,
+          pregnantOrBreastfeeding: plan.pregnantOrBreastfeeding,
+          edScreening: plan.edScreening,
+          ageOver80Acknowledged: plan.ageOver80Acknowledged,
+          rmrKcal: plan.rmrKcal,
+          tdeeKcal: plan.tdeeKcal,
+          targetKcal: plan.targetKcal,
+          proteinG: plan.proteinG,
+          carbsG: plan.carbsG,
+          fatG: plan.fatG,
+          bmi: plan.bmi,
+          warnings: plan.warnings,
+          calculatedAt: plan.calculatedAt,
+          appliedAt: plan.appliedAt,
+          formulaVersion: plan.formulaVersion,
+          updatedAt: plan.updatedAt,
+        });
+      }
 
       await writeLegacyProfile(db, manifest.profile, stagedProfilePhoto);
     });

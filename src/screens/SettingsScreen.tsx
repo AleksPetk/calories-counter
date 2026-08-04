@@ -21,6 +21,7 @@ import { resetAndReseedDevLibrary } from '../data/seed/seedDevData';
 import { useEntitlement } from '../entitlement';
 import { formatRemainingTrial } from '../entitlement/formatRemaining';
 import { SettingsStackParamList } from '../navigation/types';
+import { formatMacroGoalsSummary } from './planner/labels';
 import { DevEntitlementPanel } from './settings/DevEntitlementPanel';
 import { DEFAULT_THEME_ID, resolveTheme } from '../theme/registry';
 import { radii } from '../theme/radii';
@@ -73,6 +74,14 @@ export function SettingsScreen() {
     settings?.historyRetention ?? null,
   );
   const isPurchased = snapshot?.accessState === 'purchased';
+  const macroSummary = formatMacroGoalsSummary(
+    settings?.proteinGoal,
+    settings?.carbsGoal,
+    settings?.fatGoal,
+  );
+  const goalValue = macroSummary
+    ? `${Math.round(goal)} · ${macroSummary}`
+    : `${Math.round(goal)} kcal`;
 
   const styles = useMemo(
     () =>
@@ -131,7 +140,7 @@ export function SettingsScreen() {
     }
     Alert.alert(
       'Erase All Data?',
-      'This permanently deletes your library, history, and local settings. Trial clock and purchase entitlement are kept.',
+      'This permanently deletes your library, history, Calorie Planner answers, and local settings. Trial clock and purchase entitlement are kept.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -287,8 +296,13 @@ export function SettingsScreen() {
           <Text style={styles.sectionLabel}>Goals & day</Text>
           <View style={styles.group}>
             <SettingsRow
-              label="Daily calorie goal"
-              value={`${Math.round(goal)} kcal`}
+              label="Calorie Planner"
+              value="Estimate"
+              onPress={() => navigation.navigate('CaloriePlanner')}
+            />
+            <SettingsRow
+              label="Daily goals"
+              value={goalValue}
               onPress={() => navigation.navigate('DailyGoalEditor')}
             />
             <SettingsRow

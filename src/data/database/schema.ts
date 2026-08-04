@@ -124,3 +124,39 @@ CREATE TABLE IF NOT EXISTS entitlement (
   updated_at TEXT NOT NULL
 );
 `;
+
+/**
+ * Calorie Planner — questionnaire answers + static recommendation snapshot.
+ * Independent of logging history. Cleared by Erase All. Included in backups.
+ */
+export const CALORIE_PLAN_SQL = `
+CREATE TABLE IF NOT EXISTS calorie_plan (
+  id INTEGER PRIMARY KEY NOT NULL CHECK (id = 1),
+  sex TEXT NOT NULL CHECK (sex IN ('male', 'female')),
+  age INTEGER NOT NULL,
+  height_cm REAL NOT NULL,
+  weight_kg REAL NOT NULL,
+  unit_pref TEXT NOT NULL CHECK (unit_pref IN ('metric', 'imperial')),
+  activity TEXT NOT NULL,
+  training TEXT NOT NULL,
+  goal TEXT NOT NULL,
+  pregnant_or_breastfeeding INTEGER NOT NULL DEFAULT 0
+    CHECK (pregnant_or_breastfeeding IN (0, 1)),
+  ed_screening INTEGER NOT NULL DEFAULT 0
+    CHECK (ed_screening IN (0, 1)),
+  age_over_80_acknowledged INTEGER NOT NULL DEFAULT 0
+    CHECK (age_over_80_acknowledged IN (0, 1)),
+  rmr_kcal REAL,
+  tdee_kcal REAL,
+  target_kcal REAL,
+  protein_g REAL,
+  carbs_g REAL,
+  fat_g REAL,
+  bmi REAL,
+  warnings_json TEXT,
+  calculated_at TEXT,
+  applied_at TEXT,
+  formula_version TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+`;

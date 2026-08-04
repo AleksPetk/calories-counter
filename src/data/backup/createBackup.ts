@@ -81,12 +81,14 @@ export async function createBackupZip(options: {
     throw new Error('Cache directory is unavailable');
   }
 
-  const [libraryItems, dailyLogEntries, settings, profile] = await Promise.all([
-    repositories.libraryItems.getAll(),
-    repositories.dailyLogEntries.getAllOrdered(),
-    repositories.settings.get(),
-    readLegacyProfile(db),
-  ]);
+  const [libraryItems, dailyLogEntries, settings, profile, caloriePlan] =
+    await Promise.all([
+      repositories.libraryItems.getAll(),
+      repositories.dailyLogEntries.getAllOrdered(),
+      repositories.settings.get(),
+      readLegacyProfile(db),
+      repositories.caloriePlan.get(),
+    ]);
 
   const zipFiles: Record<string, Uint8Array> = {};
   const exportedItems: BackupLibraryItemPayload[] = [];
@@ -172,12 +174,42 @@ export async function createBackupZip(options: {
     })),
     settings: {
       dailyGoal: settings.dailyGoal,
+      proteinGoal: settings.proteinGoal,
+      carbsGoal: settings.carbsGoal,
+      fatGoal: settings.fatGoal,
       resetTime: settings.resetTime,
       historyRetention: settings.historyRetention,
       tutorialSeen: settings.tutorialSeen,
       themeId: settings.themeId,
     },
     profile: profilePayload,
+    caloriePlan: caloriePlan
+      ? {
+          sex: caloriePlan.sex,
+          age: caloriePlan.age,
+          heightCm: caloriePlan.heightCm,
+          weightKg: caloriePlan.weightKg,
+          unitPref: caloriePlan.unitPref,
+          activity: caloriePlan.activity,
+          training: caloriePlan.training,
+          goal: caloriePlan.goal,
+          pregnantOrBreastfeeding: caloriePlan.pregnantOrBreastfeeding,
+          edScreening: caloriePlan.edScreening,
+          ageOver80Acknowledged: caloriePlan.ageOver80Acknowledged,
+          rmrKcal: caloriePlan.rmrKcal,
+          tdeeKcal: caloriePlan.tdeeKcal,
+          targetKcal: caloriePlan.targetKcal,
+          proteinG: caloriePlan.proteinG,
+          carbsG: caloriePlan.carbsG,
+          fatG: caloriePlan.fatG,
+          bmi: caloriePlan.bmi,
+          warnings: caloriePlan.warnings,
+          calculatedAt: caloriePlan.calculatedAt,
+          appliedAt: caloriePlan.appliedAt,
+          formulaVersion: caloriePlan.formulaVersion,
+          updatedAt: caloriePlan.updatedAt,
+        }
+      : null,
   };
 
   zipFiles['backup.json'] = encodeUtf8(JSON.stringify(manifest, null, 2));

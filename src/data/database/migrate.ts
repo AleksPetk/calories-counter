@@ -6,7 +6,12 @@ import {
   DEFAULT_RESET_TIME,
   SCHEMA_VERSION,
 } from './constants';
-import { ENTITLEMENT_SQL, LIBRARY_ITEMS_SQL, SCHEMA_V1_SQL } from './schema';
+import {
+  CALORIE_PLAN_SQL,
+  ENTITLEMENT_SQL,
+  LIBRARY_ITEMS_SQL,
+  SCHEMA_V1_SQL,
+} from './schema';
 import { nowIso } from './utils';
 
 type Migration = {
@@ -261,6 +266,17 @@ const migrations: Migration[] = [
           timestamp,
         );
       }
+    },
+  },
+  {
+    version: 5,
+    up: async (db) => {
+      await db.execAsync(
+        `ALTER TABLE settings ADD COLUMN protein_goal REAL`,
+      );
+      await db.execAsync(`ALTER TABLE settings ADD COLUMN carbs_goal REAL`);
+      await db.execAsync(`ALTER TABLE settings ADD COLUMN fat_goal REAL`);
+      await db.execAsync(CALORIE_PLAN_SQL);
     },
   },
 ];

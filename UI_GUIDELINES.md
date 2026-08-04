@@ -168,7 +168,20 @@ Opened from the Home calorie card (and any other approved entry points). Shows w
 ### Daily calorie goal
 
 - User sets the daily calorie target used by the Home remaining bar.
-- Changing the goal updates remaining-state presentation immediately.
+- Optional protein / carbs / fat goals (grams) can be set manually or via Calorie Planner.
+- Changing the calorie goal updates remaining-state presentation immediately.
+- Home pin grid and remaining card are not redesigned for macros in this stage.
+
+### Calorie Planner
+
+- Settings → Goals & day → **Calorie Planner**.
+- Purpose-built questionnaire (not a Profile page).
+- User answers questions → sees estimated calories + macros → may **Apply** to daily goals.
+- Results stay static until **Recalculate**; answers prefills on reopen.
+- Fresh questionnaire defaults to **metric** (kg, cm); saved unit preference is restored on recalculate and via backup.
+- Never reads logging history; never auto-adjusts from intake.
+- Must show estimate / not-medical-advice / individual-variation messaging.
+- Faster weight loss only when BMI ≥ 30 and the target stays above the safety floor.
 
 ### Day reset time
 
@@ -186,6 +199,7 @@ Opened from the Home calorie card (and any other approved entry points). Shows w
   - **Portion** is more flexible but requires one extra step.
   - Use Quick Log for meals or fixed servings.
   - Use Portion when the amount changes.
+- Include a short **Calorie Planner** page: questionnaire → estimates → apply / recalculate; estimates only, not medical advice. Keep it concise — not a legal page.
 
 ### Theme
 
@@ -204,7 +218,7 @@ Opened from the Home calorie card (and any other approved entry points). Shows w
 
 - **Export Backup** creates one local ZIP (`backup.json` + `images/`) and opens the system share sheet (Files / iCloud Drive / AirDrop).
 - **Import Backup** picks a ZIP, shows backup date + app version, then confirms: “This will replace your current local QuickCal data.”
-- Import replaces library, history, settings (goal / reset / retention / theme / tutorial), and images.
+- Import replaces library, history, settings (goal / macros / reset / retention / theme / tutorial), Calorie Planner snapshot when present, and images.
 - StoreKit purchases / entitlement are **never** exported or imported; restore purchases via Apple Restore Purchase.
 - Missing or corrupt images are skipped; import still succeeds for the rest of the data.
 - Tutorial includes a Backup & Restore page explaining export, import, and separate purchase restore.

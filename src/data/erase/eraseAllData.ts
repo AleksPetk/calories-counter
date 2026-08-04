@@ -17,6 +17,7 @@ import type { DataRepositories } from '../repositories';
  * - settings.purchase_state is re-synced from entitlement after wipe
  *
  * Clears simulated DEV purchase flag so erase cannot look like a store unlock.
+ * Clears Calorie Planner answers/results and macro goals.
  *
  * Note: legacy `profile` SQLite table (if present) is left untouched — unused by the app.
  */
@@ -32,6 +33,7 @@ export async function eraseAllData(
   }
 
   await repositories.dailyLogEntries.deleteAll();
+  await repositories.caloriePlan.clear();
 
   // Clear DEV simulation only; never clear store purchase or trial clock.
   await repositories.entitlement.update({
@@ -54,6 +56,9 @@ export async function eraseAllData(
 
   return repositories.settings.update({
     dailyGoal: DEFAULT_DAILY_GOAL,
+    proteinGoal: null,
+    carbsGoal: null,
+    fatGoal: null,
     resetTime: DEFAULT_RESET_TIME,
     historyRetention: DEFAULT_HISTORY_RETENTION_DAYS,
     tutorialSeen: false,

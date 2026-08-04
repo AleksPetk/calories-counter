@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
+  LayoutChangeEvent,
   Pressable,
   StyleSheet,
   Text,
-  useWindowDimensions,
   View,
 } from 'react-native';
 
@@ -19,17 +19,35 @@ type PinGridProps = {
   onPressItem?: (item: LibraryListItem) => void;
 };
 
-const COLUMN_COUNT = 3;
-/** Must match `Screen` horizontal padding (`spacing.lg` on each side). */
-const SCREEN_HORIZONTAL_PAD = spacing.lg * 2;
+/** Mandatory pin columns on every phone (iOS + Android). Never switch to 2. */
+export const PIN_GRID_COLUMN_COUNT = 3;
+
+/**
+ * Cell width from the measured grid container (already inside Screen padding).
+ * Floors so 3 cells + 2 gaps never exceed the container (avoids Android wrap-to-2).
+ */
+export function pinCellWidth(
+  containerWidth: number,
+  gap: number,
+  columns: number = PIN_GRID_COLUMN_COUNT,
+): number {
+  if (!(containerWidth > 0) || columns < 1) {
+    return 0;
+  }
+  const gapsTotal = gap * (columns - 1);
+  return Math.floor((containerWidth - gapsTotal) / columns);
+}
 
 export function PinGrid({ items, onPressItem }: PinGridProps) {
   const theme = useTheme();
-  const { width: windowWidth } = useWindowDimensions();
   const gap = spacing.sm;
-  const cellWidth =
-    (windowWidth - SCREEN_HORIZONTAL_PAD - gap * (COLUMN_COUNT - 1)) /
-    COLUMN_COUNT;
+  const [containerWidth, setContainerWidth] = useState(0);
+  const cellWidth = pinCellWidth(containerWidth, gap, PIN_GRID_COLUMN_COUNT);
+
+  const onGridLayout = (event: LayoutChangeEvent) => {
+    const next = event.nativeEvent.layout.width;
+    setContainerWidth((prev) => (prev === next ? prev : next));
+  };
 
   const styles = useMemo(
     () =>
@@ -38,15 +56,20 @@ export function PinGrid({ items, onPressItem }: PinGridProps) {
           flexDirection: 'row',
           flexWrap: 'wrap',
           gap,
+          width: '100%',
         },
         cell: {
           width: cellWidth,
+          maxWidth: cellWidth,
+          flexGrow: 0,
+          flexShrink: 0,
           backgroundColor: theme.surface,
           borderRadius: radii.md,
           padding: spacing.sm,
           minHeight: 102,
           borderWidth: StyleSheet.hairlineWidth,
           borderColor: theme.border,
+          overflow: 'hidden',
           ...theme.cardShadow,
         },
         pressed: {
@@ -91,36 +114,38 @@ export function PinGrid({ items, onPressItem }: PinGridProps) {
   );
 
   return (
-    <View style={styles.grid}>
-      {items.map((item) => (
-        <Pressable
-          key={item.id}
-          onPress={() => onPressItem?.(item)}
-          style={({ pressed }) => [styles.cell, pressed && styles.pressed]}
-          accessibilityRole="button"
-          accessibilityLabel={item.name}
-        >
-          <LibraryThumbnail
-            uri={item.image}
-            size={28}
-            borderRadius={radii.sm - 2}
-            style={styles.thumbnail}
-          />
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>
-              {item.loggingMode === 'quick' ? 'Quick' : 'Portion'}
-            </Text>
-          </View>
-          <View style={styles.copy}>
-            <Text style={styles.name} numberOfLines={2}>
-              {item.name}
-            </Text>
-            <Text style={styles.calories}>
-              {Math.round(item.calories)} kcal
-            </Text>
-          </View>
-        </Pressable>
-      ))}
+    <View style={styles.grid} onLayout={onGridLayout}>
+      {cellWidth > 0
+        ? items.map((item) => (
+            <Pressable
+              key={item.id}
+              onPress={() => onPressItem?.(item)}
+              style={({ pressed }) => [styles.cell, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel={item.name}
+            >
+              <LibraryThumbnail
+                uri={item.image}
+                size={28}
+                borderRadius={radii.sm - 2}
+                style={styles.thumbnail}
+              />
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>
+                  {item.loggingMode === 'quick' ? 'Quick' : 'Portion'}
+                </Text>
+              </View>
+              <View style={styles.copy}>
+                <Text style={styles.name} numberOfLines={2}>
+                  {item.name}
+                </Text>
+                <Text style={styles.calories}>
+                  {Math.round(item.calories)} kcal
+                </Text>
+              </View>
+            </Pressable>
+          ))
+        : null}
     </View>
   );
 }

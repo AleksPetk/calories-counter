@@ -3,6 +3,13 @@ export type PurchaseState = 'trial' | 'purchased' | 'locked';
 export type Settings = {
   id: number;
   dailyGoal: number;
+  /**
+   * Optional daily macro targets (grams).
+   * `null` means no macro goal is set.
+   */
+  proteinGoal: number | null;
+  carbsGoal: number | null;
+  fatGoal: number | null;
   /** Local day boundary as `HH:mm` (24h). Default `00:00`. */
   resetTime: string;
   /**

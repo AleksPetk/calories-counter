@@ -26,15 +26,26 @@ export class SettingsRepository {
         patch.historyRetention !== undefined
           ? patch.historyRetention
           : existing.historyRetention,
+      proteinGoal:
+        patch.proteinGoal !== undefined
+          ? patch.proteinGoal
+          : existing.proteinGoal,
+      carbsGoal:
+        patch.carbsGoal !== undefined ? patch.carbsGoal : existing.carbsGoal,
+      fatGoal: patch.fatGoal !== undefined ? patch.fatGoal : existing.fatGoal,
       updatedAt: nowIso(),
     };
 
     await this.db.runAsync(
       `UPDATE settings SET
-        daily_goal = ?, reset_time = ?, history_retention = ?,
+        daily_goal = ?, protein_goal = ?, carbs_goal = ?, fat_goal = ?,
+        reset_time = ?, history_retention = ?,
         tutorial_seen = ?, purchase_state = ?, theme_id = ?, updated_at = ?
       WHERE id = 1`,
       next.dailyGoal,
+      next.proteinGoal,
+      next.carbsGoal,
+      next.fatGoal,
       next.resetTime,
       next.historyRetention,
       boolToInt(next.tutorialSeen),

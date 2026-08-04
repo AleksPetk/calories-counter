@@ -7,7 +7,7 @@ import {
 export const DATABASE_NAME = 'calories-counter.db';
 
 /** Current schema version stored in PRAGMA user_version. */
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 
 export {
   DEFAULT_DAILY_GOAL,

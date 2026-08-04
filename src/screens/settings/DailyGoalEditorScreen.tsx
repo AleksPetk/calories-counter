@@ -15,6 +15,18 @@ import { spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
 import { useTheme } from '../../theme/ThemeProvider';
 
+function parseOptionalNonNegativeGrams(raw: string): number | null | undefined {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return null;
+  }
+  const value = Number.parseFloat(trimmed);
+  if (!Number.isFinite(value) || value < 0) {
+    return undefined;
+  }
+  return value;
+}
+
 export function DailyGoalEditorScreen({
   navigation,
 }: {
@@ -25,11 +37,36 @@ export function DailyGoalEditorScreen({
   const [goal, setGoal] = useState(
     String(Math.round(settings?.dailyGoal ?? DEFAULT_DAILY_GOAL)),
   );
+  const [protein, setProtein] = useState(
+    settings?.proteinGoal == null ? '' : String(Math.round(settings.proteinGoal)),
+  );
+  const [carbs, setCarbs] = useState(
+    settings?.carbsGoal == null ? '' : String(Math.round(settings.carbsGoal)),
+  );
+  const [fat, setFat] = useState(
+    settings?.fatGoal == null ? '' : String(Math.round(settings.fatGoal)),
+  );
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     setGoal(String(Math.round(settings?.dailyGoal ?? DEFAULT_DAILY_GOAL)));
-  }, [settings?.dailyGoal]);
+    setProtein(
+      settings?.proteinGoal == null
+        ? ''
+        : String(Math.round(settings.proteinGoal)),
+    );
+    setCarbs(
+      settings?.carbsGoal == null ? '' : String(Math.round(settings.carbsGoal)),
+    );
+    setFat(
+      settings?.fatGoal == null ? '' : String(Math.round(settings.fatGoal)),
+    );
+  }, [
+    settings?.dailyGoal,
+    settings?.proteinGoal,
+    settings?.carbsGoal,
+    settings?.fatGoal,
+  ]);
 
   const styles = useMemo(
     () =>
@@ -38,6 +75,7 @@ export function DailyGoalEditorScreen({
           ...typography.caption,
           color: theme.textSecondary,
           marginBottom: spacing.xs,
+          marginTop: spacing.md,
         },
         input: {
           minHeight: 52,
@@ -68,9 +106,28 @@ export function DailyGoalEditorScreen({
       Alert.alert('Invalid goal', 'Enter a calorie goal greater than zero.');
       return;
     }
+    const proteinGoal = parseOptionalNonNegativeGrams(protein);
+    const carbsGoal = parseOptionalNonNegativeGrams(carbs);
+    const fatGoal = parseOptionalNonNegativeGrams(fat);
+    if (
+      proteinGoal === undefined ||
+      carbsGoal === undefined ||
+      fatGoal === undefined
+    ) {
+      Alert.alert(
+        'Invalid macros',
+        'Macro goals must be empty or zero-or-greater numbers (grams).',
+      );
+      return;
+    }
     setSaving(true);
     try {
-      await repositories.settings.update({ dailyGoal: value });
+      await repositories.settings.update({
+        dailyGoal: value,
+        proteinGoal,
+        carbsGoal,
+        fatGoal,
+      });
       await reloadSettings();
       refresh();
       navigation.goBack();
@@ -87,7 +144,7 @@ export function DailyGoalEditorScreen({
   return (
     <Screen>
       <FormKeyboardScroll>
-        <Text style={styles.label}>Daily calorie goal</Text>
+        <Text style={[styles.label, { marginTop: 0 }]}>Daily calorie goal</Text>
         <FormTextInput
           value={goal}
           onChangeText={setGoal}
@@ -97,6 +154,35 @@ export function DailyGoalEditorScreen({
         />
         <Text style={styles.hint}>
           Used by the Home remaining-calories card.
+        </Text>
+
+        <Text style={styles.label}>Protein goal (g, optional)</Text>
+        <FormTextInput
+          value={protein}
+          onChangeText={setProtein}
+          keyboardType="decimal-pad"
+          style={styles.input}
+          placeholderTextColor={theme.placeholder}
+        />
+        <Text style={styles.label}>Carbs goal (g, optional)</Text>
+        <FormTextInput
+          value={carbs}
+          onChangeText={setCarbs}
+          keyboardType="decimal-pad"
+          style={styles.input}
+          placeholderTextColor={theme.placeholder}
+        />
+        <Text style={styles.label}>Fat goal (g, optional)</Text>
+        <FormTextInput
+          value={fat}
+          onChangeText={setFat}
+          keyboardType="decimal-pad"
+          style={styles.input}
+          placeholderTextColor={theme.placeholder}
+        />
+        <Text style={styles.hint}>
+          Leave macros blank to clear them. Calorie Planner can set all four at
+          once.
         </Text>
         <PrimaryButton
           label={saving ? 'Saving…' : 'Save'}

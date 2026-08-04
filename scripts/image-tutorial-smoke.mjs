@@ -38,6 +38,10 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
   assert.match(pages, /Themes/);
   assert.match(pages, /Backup & Restore|id: 'backup'/);
   assert.match(pages, /Export saves all your local data/);
+  assert.match(pages, /id: 'planner'/);
+  assert.match(pages, /Calorie Planner/);
+  assert.match(pages, /Estimates only — not medical advice/);
+  assert.match(pages, /recalculate anytime/i);
   const modal = readFileSync(
     join(root, 'src/onboarding/OnboardingModal.tsx'),
     'utf8',

@@ -8,7 +8,7 @@ A mobile calorie tracking app built for speed.
 
 ## Status
 
-In active development (Expo SDK 54 + React Native + TypeScript). Stage 9 (UX polish, local backup/restore, History macros) is implemented and awaiting device verification.
+In active development (Expo SDK 54 + React Native + TypeScript). Stage 9 (backup/UX) and Stage A (Calorie Planner) are implemented in code and awaiting device verification.
 
 See [PROJECT.md](./PROJECT.md) for vision, MVP scope, architecture, and stages.  
 See [DEVELOPMENT.md](./DEVELOPMENT.md) for local seed / reset notes.

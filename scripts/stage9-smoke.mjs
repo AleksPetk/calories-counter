@@ -146,7 +146,7 @@ function read(rel) {
 
 {
   function validateFormatVersion(formatVersion) {
-    const BACKUP_FORMAT_VERSION = 1;
+    const BACKUP_FORMAT_VERSION = 2;
     if (typeof formatVersion !== 'number') {
       throw new Error('Backup is missing format version');
     }
@@ -159,10 +159,11 @@ function read(rel) {
     }
   }
   assert.throws(() => validateFormatVersion(0));
-  assert.throws(() => validateFormatVersion(2));
+  assert.throws(() => validateFormatVersion(3));
   assert.throws(() => validateFormatVersion(1.5));
   assert.throws(() => validateFormatVersion('1'));
   validateFormatVersion(1);
+  validateFormatVersion(2);
   console.log('ok unsupported backup versions rejected');
 }
 

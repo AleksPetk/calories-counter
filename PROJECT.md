@@ -206,6 +206,20 @@ Do not mark complete until device + sandbox verification.
 
 Do not mark complete until device verification.
 
+### Stage A — Calorie Planner — Implemented (code)
+
+- Settings → Calorie Planner questionnaire (not a Profile page)
+- Mifflin–St Jeor RMR + lifestyle PAL (excludes workouts) + training add-on (capped)
+- Goals: maintenance, slow/moderate loss, faster loss when BMI ≥ 30 and above floor, slow/moderate gain, muscle gain
+- Apply sets `daily_goal` + protein/carbs/fat goals; result static until recalculate
+- Never reads logging history; estimate / not-medical-advice copy
+- Schema v5: `calorie_plan` table + settings macro goal columns; backup format v2
+- Erase All clears planner + macro goals; entitlement preserved
+- Onboarding: one Library bullet only (no new tutorial page)
+- Legal HTML on docs.alekspetk.com **not** edited here — draft copy for Documentation Agent
+
+Do not mark complete until device verification.
+
 ### Stage 10 — Release
 
 - Store assets
@@ -236,9 +250,10 @@ src/
   types/                # Domain TypeScript models
   data/
     database/           # open, schema, migrate, mappers
-    repositories/       # LibraryItem, DailyLogEntry, Settings, Entitlement
+    repositories/       # LibraryItem, DailyLogEntry, Settings, Entitlement, CaloriePlan
     images/             # Persist/delete library photos
     backup/             # Local ZIP export/import (no entitlement)
+    planner/            # Calorie Planner pure math (Mifflin–St Jeor pack)
     library/            # Pin-limit helpers
     logging/            # Active day, totals, log create/undo helpers
     history/            # Retention purge helpers
@@ -253,8 +268,9 @@ src/
 |-------|---------|
 | `library_items` | Unified user library (Quick Log or Portion mode) |
 | `daily_log_entries` | Per-day logged intake snapshots |
-| `settings` | Single-row app settings |
+| `settings` | Single-row app settings (incl. optional macro goals) |
 | `entitlement` | Trial clock + store purchase cache (not erased / not backed up) |
+| `calorie_plan` | Planner answers + static recommendation snapshot (erased / backed up) |
 
 Legacy notes:
 - Pre-v3 `foods` / `meals` / `meal_items` are migrated into `library_items` then dropped.

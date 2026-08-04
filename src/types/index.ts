@@ -16,4 +16,5 @@ export type {
   Settings,
   SettingsUpdate,
 } from './settings';
+export type { CaloriePlan, CaloriePlanUpsert } from './caloriePlan';
 export type { LibraryListItem } from './libraryListItem';

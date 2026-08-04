@@ -15,6 +15,7 @@ export type OnboardingPageId =
   | 'welcome'
   | 'logging'
   | 'library'
+  | 'planner'
   | 'themes'
   | 'privacy'
   | 'backup'
@@ -221,6 +222,21 @@ function LibraryContent() {
   );
 }
 
+function PlannerContent() {
+  return (
+    <View style={{ alignItems: 'center', width: '100%' }}>
+      <IconBadge name="calculator-outline" />
+      <View style={{ alignSelf: 'stretch', gap: spacing.sm }}>
+        <Bullet>Open Calorie Planner from Settings.</Bullet>
+        <Bullet>Answer a short questionnaire.</Bullet>
+        <Bullet>Get estimated calorie and macro targets.</Bullet>
+        <Bullet>Apply a plan, or recalculate anytime.</Bullet>
+        <Bullet>Estimates only — not medical advice.</Bullet>
+      </View>
+    </View>
+  );
+}
+
 function ThemesContent() {
   return (
     <View style={{ alignItems: 'center', width: '100%' }}>
@@ -298,6 +314,12 @@ export const ONBOARDING_PAGES: OnboardingPage[] = [
     title: 'Your Personal Library',
     subtitle: 'Build it once. Log forever.',
     Content: LibraryContent,
+  },
+  {
+    id: 'planner',
+    title: 'Calorie Planner',
+    subtitle: 'Optional estimates for your daily goals.',
+    Content: PlannerContent,
   },
   {
     id: 'themes',
