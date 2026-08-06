@@ -3,7 +3,6 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useCallback, useMemo, useState } from 'react';
 import {
   Alert,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -20,6 +19,7 @@ import {
 } from '../../data/planner';
 import { nowIso } from '../../data/database/utils';
 import { useEntitlement } from '../../entitlement';
+import { tabBarTotalHeight } from '../../navigation/tabBarLayout';
 import type { SettingsStackParamList } from '../../navigation/types';
 import type { CaloriePlan } from '../../types';
 import { radii } from '../../theme/radii';
@@ -34,9 +34,6 @@ import {
   formatMacroGoalsSummary,
 } from './labels';
 
-/** Matches RootNavigator tab bar heights so actions clear the tab bar. */
-const TAB_BAR_HEIGHT = Platform.OS === 'ios' ? 88 : 68;
-
 export function CaloriePlannerScreen() {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -47,8 +44,8 @@ export function CaloriePlannerScreen() {
   const [plan, setPlan] = useState<CaloriePlan | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const scrollBottomPad =
-    TAB_BAR_HEIGHT + Math.max(insets.bottom, spacing.sm) + spacing.xl;
+  // Tab bar height already includes bottom inset — add only extra scroll gap.
+  const scrollBottomPad = tabBarTotalHeight(insets.bottom) + spacing.xl;
 
   const styles = useMemo(
     () =>

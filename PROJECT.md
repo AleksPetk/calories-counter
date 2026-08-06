@@ -201,7 +201,7 @@ Do not mark complete until device + sandbox verification.
 - Undo Last requires confirmation (Cancel / Remove)
 - History day summary expands to Calories / Protein / Carbs / Fat
 - Local ZIP backup & restore (Settings → Export / Import); no cloud/accounts
-- StoreKit / entitlement **not** included in backups (Apple Restore separately)
+- Store purchase / entitlement **not** included in backups (Restore Purchase via App Store or Google Play)
 - Tutorial page for Backup & Restore
 
 Do not mark complete until device verification.

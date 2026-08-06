@@ -25,6 +25,9 @@ export function AppNavigator() {
           headerStyle: { backgroundColor: theme.background },
           headerShadowVisible: false,
           contentStyle: { backgroundColor: theme.background },
+          // Hardware back / gesture dismisses paywall without exiting the app.
+          gestureEnabled: true,
+          fullScreenGestureEnabled: false,
         }}
       />
     </Stack.Navigator>

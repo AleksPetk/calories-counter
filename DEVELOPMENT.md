@@ -75,6 +75,15 @@ eas build --profile development --platform android
 npx expo start --dev-client
 ```
 
+#### Versioning (EAS remote)
+
+- App **version name** stays `1.0.0` in `app.json` / `package.json` / `appBrand` until a deliberate marketing bump.
+- `eas.json` uses `cli.appVersionSource: "remote"` and `build.production.autoIncrement: true`.
+- **Do not** set `android.versionCode` (or iOS `buildNumber`) locally while remote autoIncrement owns production numbering.
+- **Android:** the first successful **production** EAS Android build mints `versionCode` **1** on Expo’s remote counters; each later production Android build increments that counter.
+- **iOS:** unchanged — remote autoIncrement continues the existing iOS build-number sequence (already past several production builds). Android and iOS counters are independent.
+- Development / preview profiles do not require production versionCode bumps for internal testing.
+
 #### Manual store setup (required before sandbox purchase)
 
 **App Store Connect**

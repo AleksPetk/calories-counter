@@ -224,10 +224,10 @@ Opened from the Home calorie card (and any other approved entry points). Shows w
 
 ### Backup & Restore
 
-- **Export Backup** creates one local ZIP (`backup.json` + `images/`) and opens the system share sheet (Files / iCloud Drive / AirDrop).
+- **Export Backup** creates one local ZIP (`backup.json` + `images/`) and opens the system share sheet (Files, Drive, nearby share, etc.).
 - **Import Backup** picks a ZIP, shows backup date + app version, then confirms: “This will replace your current local QuickCal data.”
 - Import replaces library, history, settings (goal / macros / reset / retention / theme / tutorial), Calorie Planner snapshot when present, and images.
-- StoreKit purchases / entitlement are **never** exported or imported; restore purchases via Apple Restore Purchase.
+- Store purchases / entitlement are **never** exported or imported; restore access separately with **Restore Purchase** (App Store or Google Play).
 - Missing or corrupt images are skipped; import still succeeds for the rest of the data.
 - Tutorial includes a Backup & Restore page explaining export, import, and separate purchase restore.
 

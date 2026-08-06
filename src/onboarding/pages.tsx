@@ -276,7 +276,8 @@ function BackupContent() {
           Import restores everything after reinstall or moving devices.
         </Bullet>
         <Bullet>
-          Purchases are restored separately using Apple Restore Purchase.
+          Purchases are restored separately with Restore Purchase (App Store
+          or Google Play).
         </Bullet>
       </View>
     </View>

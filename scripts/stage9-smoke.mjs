@@ -103,12 +103,13 @@ function read(rel) {
   assert.match(restore, /Unsupported backup format version/);
   assert.match(pathSafety, /\.\./);
   assert.match(actions, /Sharing\.shareAsync/);
-  assert.match(actions, /deleteAsync\(uri/);
+  assert.match(actions, /scheduleExportZipCleanup/);
+  assert.match(actions, /ANDROID_BACKUP_SHARE_CLEANUP_DELAY_MS/);
   assert.match(actions, /getDocumentAsync/);
   assert.match(actions, /This will replace your current local QuickCal data/);
   assert.match(actions, /Backup date:/);
   assert.match(actions, /App version:/);
-  console.log('ok backup excludes StoreKit / confirms import');
+  console.log('ok backup excludes entitlement / confirms import + share cleanup');
 }
 
 {
@@ -210,7 +211,9 @@ function read(rel) {
   const pages = read('src/onboarding/pages.tsx');
   assert.match(pages, /id: 'backup'/);
   assert.match(pages, /Export saves all your local data/);
-  assert.match(pages, /Apple Restore Purchase/);
+  assert.match(pages, /Restore Purchase \(App Store/);
+  assert.match(pages, /Google Play/);
+  assert.doesNotMatch(pages, /Apple Restore Purchase/);
   const settings = read('src/screens/SettingsScreen.tsx');
   assert.match(settings, /Export Backup/);
   assert.match(settings, /Import Backup/);

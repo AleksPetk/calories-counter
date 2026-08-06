@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Platform, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { TAB_LABELS } from '../constants';
 import { useTheme } from '../theme/ThemeProvider';
@@ -8,6 +9,7 @@ import { HistoryNavigator } from './HistoryNavigator';
 import { HomeNavigator } from './HomeNavigator';
 import { LibraryNavigator } from './LibraryNavigator';
 import { SettingsNavigator } from './SettingsNavigator';
+import { tabBarBottomPad, tabBarTotalHeight } from './tabBarLayout';
 import { RootTabParamList } from './types';
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -24,6 +26,9 @@ const TAB_ICONS: Record<
 
 export function RootNavigator() {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
+  const bottomPad = tabBarBottomPad(insets.bottom);
+  const barHeight = tabBarTotalHeight(insets.bottom);
 
   return (
     <Tab.Navigator
@@ -51,8 +56,9 @@ export function RootNavigator() {
           backgroundColor: theme.surface,
           borderTopColor: theme.border,
           borderTopWidth: StyleSheet.hairlineWidth,
-          height: Platform.OS === 'ios' ? 88 : 68,
+          height: barHeight,
           paddingTop: 6,
+          paddingBottom: bottomPad,
           ...Platform.select({
             ios: {
               shadowColor: theme.textPrimary,

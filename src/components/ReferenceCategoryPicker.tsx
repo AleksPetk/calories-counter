@@ -8,6 +8,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   REFERENCE_CATEGORIES,
@@ -52,6 +53,9 @@ export function ReferenceCategoryPicker({
   onClose,
 }: ReferenceCategoryPickerProps) {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
+  const sheetBottomPad = Math.max(insets.bottom, spacing.md) + spacing.lg;
+
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -68,7 +72,7 @@ export function ReferenceCategoryPicker({
           borderTopLeftRadius: radii.xl,
           borderTopRightRadius: radii.xl,
           paddingTop: spacing.md,
-          paddingBottom: spacing.xxl,
+          paddingBottom: sheetBottomPad,
           maxHeight: '70%',
           borderTopWidth: StyleSheet.hairlineWidth,
           borderColor: theme.border,
@@ -103,7 +107,7 @@ export function ReferenceCategoryPicker({
           fontWeight: '700',
         },
       }),
-    [theme],
+    [theme, sheetBottomPad],
   );
 
   return (

@@ -43,7 +43,8 @@
     "smoke:stage9": "node scripts/stage9-smoke.mjs",
     "smoke:planner": "node scripts/planner-smoke.mjs",
     "smoke:pin-grid": "node scripts/pin-grid-smoke.mjs",
-    "smoke:reference": "node scripts/reference-library-smoke.mjs"
+    "smoke:reference": "node scripts/reference-library-smoke.mjs",
+    "smoke:android-readiness": "node scripts/android-readiness-smoke.mjs"
   },
   "private": true
 }

@@ -2,7 +2,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { deleteAsync } from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import type { SQLiteDatabase } from 'expo-sqlite';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 
 import { resolveTheme } from '../../theme/registry';
 import { initDatabase } from '../index';
@@ -14,6 +14,12 @@ import {
   prepareBackupImport,
 } from './restoreBackup';
 import type { PreparedBackupImport } from './types';
+
+/**
+ * Android share targets may still be reading the ZIP after shareAsync resolves.
+ * Delay cache cleanup so the receiver can finish; iOS can clean up immediately.
+ */
+export const ANDROID_BACKUP_SHARE_CLEANUP_DELAY_MS = 60_000;
 
 function formatBackupDate(iso: string): string {
   const date = new Date(iso);
@@ -27,6 +33,28 @@ function formatBackupDate(iso: string): string {
     hour: 'numeric',
     minute: '2-digit',
   });
+}
+
+async function deleteExportZip(uri: string): Promise<void> {
+  try {
+    await deleteAsync(uri, { idempotent: true });
+  } catch {
+    // Cache cleanup is best-effort.
+  }
+}
+
+/**
+ * Schedule removal of the temporary export ZIP after sharing.
+ * Android: delayed. iOS / others: immediate after the share sheet closes.
+ */
+export function scheduleExportZipCleanup(uri: string): void {
+  if (Platform.OS === 'android') {
+    setTimeout(() => {
+      void deleteExportZip(uri);
+    }, ANDROID_BACKUP_SHARE_CLEANUP_DELAY_MS);
+    return;
+  }
+  void deleteExportZip(uri);
 }
 
 export async function exportBackupViaShareSheet(options: {
@@ -50,11 +78,7 @@ export async function exportBackupViaShareSheet(options: {
       UTI: 'public.zip-archive',
     });
   } finally {
-    try {
-      await deleteAsync(uri, { idempotent: true });
-    } catch {
-      // Cache cleanup is best-effort after the share sheet closes.
-    }
+    scheduleExportZipCleanup(uri);
   }
 }
 
